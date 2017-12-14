@@ -15,11 +15,16 @@ def setup():
 
     if not os.path.exists('config.json'):
         print('No config.json file found')
+        exit(1)
     with open('config.json', 'r') as f:
         config = json.loads(f.read())
 
     if not config['token']:
         print('No token value found in config file')
+        exit(1)
+    elif not config['MALuser'] or not config['MALpass']:
+        print('No MAL credentials found in config file')
+        exit(1)
 
 
 def create_message_from_results(results):
@@ -27,7 +32,7 @@ def create_message_from_results(results):
     embed = discord.Embed(
         title       = anime.title,
         type        = 'rich',
-        description = re.sub(r'\[.*?\]|\n', '', h2t.html2text(anime.synopsis)),
+        description = re.sub(r'\[.*?\]|\n', '', h2t.html2text(anime.synopsis)).replace('  ', ' '),
         url         = 'https://myanimelist.net/anime/%s' % anime.id,
         )
     embed.set_thumbnail(url=anime.image_url)
@@ -40,7 +45,7 @@ def create_message_from_results(results):
 @client.event
 async def on_ready():
     global creds
-    creds = spice.load_auth_from_file('auth')
+    creds = spice.init_auth(config['MALuser'], config['MALpass'])
     print('Logged in as')
     print(client.user.name)
     print(client.user.id)
@@ -55,7 +60,5 @@ async def on_message(message):
         await client.send_message(message.channel,
                                   embed=create_message_from_results(results))
 
-
 setup()
 client.run(config['token'])
-
