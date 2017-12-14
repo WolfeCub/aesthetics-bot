@@ -1,4 +1,5 @@
 import os
+import sys
 import re
 import json
 import discord
@@ -26,9 +27,20 @@ def setup():
         print('No MAL credentials found in config file')
         exit(1)
 
+def fuzzy_match_best_result(results, original_query):
+    best_match = None
+    lowest = sys.maxsize
 
-def create_message_from_results(results):
-    anime = results[0]
+    for anime in results:
+        dist = levenshtein(anime.title, original_query)
+        if dist < lowest:
+            best_match = anime
+            lowest = dist
+
+    return best_match
+
+def create_message_from_results(results, original_query):
+    anime = fuzzy_match_best_result(results, original_query)
     embed = discord.Embed(
         title       = anime.title,
         type        = 'rich',
@@ -41,6 +53,26 @@ def create_message_from_results(results):
     embed.add_field(name='Status', value=anime.status)
     embed.add_field(name='Aired', value='%s -> %s' % (anime.dates[0], anime.dates[1]))
     return embed
+
+# source: wikibooks.org
+def levenshtein(s1, s2):
+    if len(s1) < len(s2):
+        return levenshtein(s2, s1)
+
+    if len(s2) == 0:
+        return len(s1)
+
+    previous_row = range(len(s2) + 1)
+    for i, c1 in enumerate(s1):
+        current_row = [i + 1]
+        for j, c2 in enumerate(s2):
+            insertions = previous_row[j + 1] + 1
+            deletions = current_row[j] + 1
+            substitutions = previous_row[j] + (c1 != c2)
+            current_row.append(min(insertions, deletions, substitutions))
+        previous_row = current_row
+    
+    return previous_row[-1]
 
 @client.event
 async def on_ready():
@@ -58,7 +90,7 @@ async def on_message(message):
     if message.channel.name == 'anime-recommendation-thread':
         results = spice.search(message.content, spice.get_medium('anime'), creds)
         await client.send_message(message.channel,
-                                  embed=create_message_from_results(results))
+                                  embed=create_message_from_results(results, message.content))
 
 setup()
 client.run(config['token'])
