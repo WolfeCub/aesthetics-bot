@@ -10,9 +10,11 @@ import html2text as h2t
 client = discord.Client()
 creds = ()
 config = {}
+anime_regex = None
 
 def setup():
     global config
+    global anime_regex
 
     if not os.path.exists('config.json'):
         print('No config.json file found')
@@ -20,11 +22,21 @@ def setup():
     with open('config.json', 'r') as f:
         config = json.loads(f.read())
 
-    if not config['token']:
-        print('No token value found in config file')
-        exit(1)
-    elif not config['MALuser'] or not config['MALpass']:
-        print('No MAL credentials found in config file')
+    check_config_params(config, ['token',
+                                 'MALuser',
+                                 'MALpass',
+                                 'prefix'
+                                 'anime_channels'])
+    anime_regex = re.compile(r'{{(.*?)}}')
+
+def check_config_params(json, items):
+    should_exit = False
+    for item in json:
+        if not json[item]:
+            print('No value for "%s" found in the config file.' % item)
+            should_exit = True
+
+    if should_exit:
         exit(1)
     elif not config['COBALT_key']:
         print('No COBALT credentials found in config file')
@@ -77,10 +89,19 @@ def levenshtein(s1, s2):
     
     return previous_row[-1]
 
-def request_course():
-    async with aiohttp.get("https://cobalt.qas.im/api/1.0/blah_courses") as r:
-        if r.status == 200:
-            js = await r.json()
+def check_anime_regex(message):
+    matches = anime_regex.match(message.content)
+    if matches:
+        return matches.group(1)
+    return None
+
+async def handle_anime_message(message):
+    match = check_anime_regex(message)
+    if match:
+        results = spice.search(match, spice.get_medium('anime'), creds)
+        await client.send_message(message.channel,
+                                  embed=create_message_from_results(results, match))
+
 
 @client.event
 async def on_ready():
@@ -95,10 +116,8 @@ async def on_ready():
 async def on_message(message):
     if message.author == client.user:
         return
-    if message.channel.name == 'anime-recommendation-thread':
-        results = spice.search(message.content, spice.get_medium('anime'), creds)
-        await client.send_message(message.channel,
-                                  embed=create_message_from_results(results, message.content))
+    if message.channel.name in config['anime_channels']:
+        await handle_anime_message(message)
 
 setup()
 client.run(config['token'])
