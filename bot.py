@@ -26,6 +26,9 @@ def setup():
     elif not config['MALuser'] or not config['MALpass']:
         print('No MAL credentials found in config file')
         exit(1)
+    elif not config['COBALT_key']:
+        print('No COBALT credentials found in config file')
+        exit(1)
 
 def fuzzy_match_best_result(results, original_query):
     best_match = None
@@ -73,6 +76,11 @@ def levenshtein(s1, s2):
         previous_row = current_row
     
     return previous_row[-1]
+
+def request_course():
+    async with aiohttp.get("https://cobalt.qas.im/api/1.0/blah_courses") as r:
+        if r.status == 200:
+            js = await r.json()
 
 @client.event
 async def on_ready():
