@@ -3,6 +3,7 @@ import json
 import discord
 import asyncio
 import anime
+import cobalt_module
 import spice_api as spice
 
 client = discord.Client()
@@ -21,8 +22,10 @@ def setup():
     check_config_params(config, ['token',
                                  'MALuser',
                                  'MALpass',
-                                 'prefix'
-                                 'anime_channels'])
+                                 'prefix',
+                                 'anime_channels',
+                                 'school_channels',
+                                 'COBALT_key'])
 
 def check_config_params(json, items):
     should_exit = False
@@ -32,9 +35,6 @@ def check_config_params(json, items):
             should_exit = True
 
     if should_exit:
-        exit(1)
-    elif not config['COBALT_key']:
-        print('No COBALT credentials found in config file')
         exit(1)
 
 @client.event
@@ -51,6 +51,8 @@ async def on_message(message):
         return
     if message.channel.name in config['anime_channels']:
         await anime.handle(client, config, message)
+    elif message.channel.name in config['school_channels']:
+        await cobalt_module.handle(client, config, message)
 
 setup()
 client.run(config['token'])
