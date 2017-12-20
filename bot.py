@@ -3,7 +3,9 @@ import json
 import discord
 import asyncio
 import anime
+import signal
 import cobalt_module
+import karma
 import spice_api as spice
 
 client = discord.Client()
@@ -26,6 +28,13 @@ def setup():
                                  'anime_channels',
                                  'school_channels',
                                  'COBALT_key'])
+
+    signal.signal(signal.SIGINT, cleanup)
+
+def cleanup(signum, frame):
+    print('\nExiting...')
+    karma.cleanup()
+    exit(0)
 
 def check_config_params(json, items):
     should_exit = False
@@ -51,8 +60,9 @@ async def on_message(message):
         return
     if message.channel.name in config['anime_channels']:
         await anime.handle(client, config, message)
-    elif message.channel.name in config['school_channels']:
+    if message.channel.name in config['school_channels']:
         await cobalt_module.handle(client, config, message)
+    await karma.handle(client, config, message)
 
 setup()
 client.run(config['token'])
