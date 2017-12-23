@@ -49,4 +49,7 @@ def __check_karma_regex(message):
 async def handle(client, config, message):
     matches = __check_karma_regex(message)
     if matches:
-        await __update_database_if_valid(client, message, matches[0], matches[1])
+        if message.author.id == matches[0]:
+            await client.send_message(message.channel, 'You cannot edit your own karma.')
+        else:
+            await __update_database_if_valid(client, message, matches[0], matches[1])
