@@ -8,7 +8,6 @@ import cobalt_module
 import karma
 import roles
 import cryptocurreny
-import spice_api as spice
 
 client = discord.Client()
 config = {}
@@ -24,14 +23,16 @@ def setup():
         config = json.loads(f.read())
 
     check_config_params(config, ['token',
-                                 'MALuser',
-                                 'MALpass',
+                                 'kitsu_id',
+                                 'kitsu_secret',
                                  'prefix',
                                  'anime_channels',
                                  'school_channels',
                                  'COBALT_key'])
 
     cryptocurreny.setup()
+    anime.setup(config['kitsu_id'], config['kitsu_secret'])
+
     signal.signal(signal.SIGINT, cleanup)
 
 def cleanup(signum, frame):
@@ -51,11 +52,11 @@ def check_config_params(json, items):
 
 @client.event
 async def on_ready():
-    config['mal_creds'] = spice.init_auth(config['MALuser'], config['MALpass'])
+    print('-------------')
     print('Logged in as')
     print(client.user.name)
     print(client.user.id)
-    print('------')
+    print('-------------')
 
 @client.event
 async def on_message(message):
