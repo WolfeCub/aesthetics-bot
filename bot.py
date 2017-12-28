@@ -30,7 +30,8 @@ def setup():
                                  'anime_channels',
                                  'school_channels',
                                  'COBALT_key'])
-    
+
+    cryptocurreny.setup()
     signal.signal(signal.SIGINT, cleanup)
 
 def cleanup(signum, frame):
@@ -50,7 +51,6 @@ def check_config_params(json, items):
 
 @client.event
 async def on_ready():
-    cryptocurreny.setup()
     config['mal_creds'] = spice.init_auth(config['MALuser'], config['MALpass'])
     print('Logged in as')
     print(client.user.name)
