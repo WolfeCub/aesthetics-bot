@@ -1,7 +1,6 @@
 import sys
 import re
 import discord
-from pprint import pprint
 from Pymoe import Kitsu
 
 __ANIME_REGEX = re.compile(r'{{(.*?)}}')
