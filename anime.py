@@ -42,5 +42,7 @@ async def handle(client, config, message):
     if match:
         client.send_typing(message.channel)
         results = __KITSU.anime.search(match)
-        await client.send_message(message.channel,
-                                  embed=__create_message_from_results(results, match))
+        if results:
+            await client.send_message(message.channel, embed=__create_message_from_results(results, match))
+        else:
+            await client.send_message(message.channel, 'No results found.')
