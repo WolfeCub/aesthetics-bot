@@ -1,6 +1,5 @@
 import os
 import json
-import urllib.request
 import discord
 import asyncio
 import anime
