@@ -7,6 +7,7 @@ import signal
 import cobalt_module
 import karma
 import roles
+import cryptocurreny
 import spice_api as spice
 
 client = discord.Client()
@@ -30,6 +31,7 @@ def setup():
                                  'school_channels',
                                  'COBALT_key'])
 
+    cryptocurreny.setup()
     signal.signal(signal.SIGINT, cleanup)
 
 def cleanup(signum, frame):
@@ -61,6 +63,7 @@ async def on_message(message):
         return
     if message.content.startswith(config['prefix']):
         await roles.handle(client, config, message)
+        await cryptocurreny.handle(client, config, message)
     else:
         if message.channel.name in config['anime_channels']:
             await anime.handle(client, config, message)

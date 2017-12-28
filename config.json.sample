@@ -1,0 +1,10 @@
+{
+    "token": "Your server token",
+    "prefix": "!",
+    "COBALT_key": "Your Cobalt key",
+    "MALuser": "Your MALUser",
+    "MALpass": "Your MALPass",
+    "anime_channels": ["list", "of", "anime", "channels"],
+    "school_channels": ["list", "of", "cobalt", "channels"],
+    "valid_roles": ["rolls", "to", "be", "user", "assignable"]
+}

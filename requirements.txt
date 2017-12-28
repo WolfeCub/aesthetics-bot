@@ -1,3 +1,4 @@
 discord.py[voice]
 spice_api
 html2text
+coinmarketcap
