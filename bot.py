@@ -6,6 +6,7 @@ import anime
 import signal
 import cobalt_module
 import karma
+import roles
 import spice_api as spice
 
 client = discord.Client()
@@ -58,11 +59,14 @@ async def on_ready():
 async def on_message(message):
     if message.author == client.user:
         return
-    if message.channel.name in config['anime_channels']:
-        await anime.handle(client, config, message)
-    if message.channel.name in config['school_channels']:
-        await cobalt_module.handle(client, config, message)
-    await karma.handle(client, config, message)
+    if message.content.startswith(config['prefix']):
+        await roles.handle(client, config, message)
+    else:
+        if message.channel.name in config['anime_channels']:
+            await anime.handle(client, config, message)
+        if message.channel.name in config['school_channels']:
+            await cobalt_module.handle(client, config, message)
+        await karma.handle(client, config, message)
 
 setup()
 client.run(config['token'])

@@ -51,16 +51,16 @@ async def __request_course(client, message, config, course_name):
     headers = {'Authorization': config['COBALT_key']}
     
     try:
-        async with aiohttp.get("https://cobalt.qas.im/api/1.0/courses/filter", params=params, headers=headers) as r:
+        async with aiohttp.get('https://cobalt.qas.im/api/1.0/courses/filter', params=params, headers=headers) as r:
             if r.status == 200:
                 course_query = await r.json()
                 if course_query == []:
-                    await client.send_message(message.channel, ":slight_frown: **||** Nothing came up.")
+                    await client.send_message(message.channel, ':slight_frown: **||** Nothing came up.')
                 else:
                     return course_query
                 
     except HTTPException: # I don't even know if its even running into this when it does error
-        await client.send_message(message.channel, "There was an error with grabbing the information, oh no! :dizzy_face:")
+        await client.send_message(message.channel, 'There was an error with grabbing the information, oh no! :dizzy_face:')
             
     return None
             
@@ -72,7 +72,7 @@ async def handle(client, config, message):
     course_info = await __request_course(client, message, config, message.content)
     if course_info:
         course_info = __clean_course_dup(course_info)
-        await client.send_message(message.channel, ":package: **||** Here are the result(s).")
+        await client.send_message(message.channel, ':package: **||** Here are the result(s).')
         for course in course_info:
             await client.send_message(message.channel,
                                       embed= __create_course_embed(course))
