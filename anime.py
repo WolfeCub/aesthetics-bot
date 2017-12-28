@@ -12,7 +12,7 @@ def __create_message_from_results(results, original_query):
         title       = anime['canonicalTitle'],
         type        = 'rich',
         description = re.sub(r'\[Written by MAL Rewrite\]|\(Source: .*?\)', '', anime['synopsis']),
-        url         = results[0]['links']['self']
+        url         = 'https://kitsu.io/anime/%s' % anime['slug']
         )
     embed.set_thumbnail(url=anime['posterImage']['large'])
     embed.add_field(name='Score', value=anime['averageRating'])
