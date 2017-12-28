@@ -62,6 +62,7 @@ def __check_anime_regex(message):
 async def handle(client, config, message):
     match = __check_anime_regex(message)
     if match:
+        client.send_typing(message.channel)
         results = spice.search(match, spice.get_medium('anime'), config['mal_creds'])
         await client.send_message(message.channel,
                                   embed=__create_message_from_results(results, match))
