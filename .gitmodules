@@ -1,0 +1,3 @@
+[submodule "pymoe-src"]
+	path = pymoe-src
+	url = https://github.com/ccubed/PyMoe.git

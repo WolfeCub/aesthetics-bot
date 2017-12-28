@@ -1,4 +1,12 @@
 discord.py[voice]
-spice_api
-html2text
 coinmarketcap
+
+ujson
+requests
+bs4
+idna
+urllib3
+chardet
+certifi
+beautifulsoup4
+

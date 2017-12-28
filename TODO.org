@@ -1,12 +1,4 @@
 * MCSS Discord Bot Todos
-** TODO Swap MyAnimeList to something with a better search engine
-   There have been numerous issues with MAL's search including 'Orange'
-   returning 'Pokemon' and anime just not being found. As a stop-gap measure
-   the bot uses Levenshtein string distance to find the best match. This
-   isn't ideal since the algorithm prefers shorter titles which we have found
-   often isn't the best option. Ideally we won't write our own search engine
-   but swap to a better provider.
-
 ** TODO Search & select for anime
    The idea being that a user searches for a query e.g. 'Cowboy Bebop'
    then the bot replies with a list of the top 5 items matching that query.
@@ -15,3 +7,13 @@
    deletes the users selection message. This syntax would ideally be different
    from the existing one (maybe =[[anime]]= instead of ={{anime}}=) so that a user
    can bypass the search if they want.
+
+* Completed
+** DONE Swap MyAnimeList to something with a better search engine
+   There have been numerous issues with MAL's search including 'Orange'
+   returning 'Pokemon' and anime just not being found. As a stop-gap measure
+   the bot uses Levenshtein string distance to find the best match. This
+   isn't ideal since the algorithm prefers shorter titles which we have found
+   often isn't the best option. Ideally we won't write our own search engine
+   but swap to a better provider.
+
