@@ -15,25 +15,27 @@ def cleanup():
     __connection.commit()
     __connection.close()
 
-def __time_left(time_in_db):
-    return (__COOLDOWN_IN_SECONDS/60) - ((time.time() - time_in_db)/60)
+def __time_left(time_in_db, cooldown):
+    return (cooldown/60) - ((time.time() - time_in_db)/60)
 
 async def __update_database_if_valid(client, message, user_id, operation):
+    cooldown = __COOLDOWN_IN_SECONDS
     if operation == '++':
         change = 1
         m = 'gained'
     elif operation == '--':
+        cooldown *= 2
         change = -1
         m = 'lost'
 
     __c.execute('SELECT * FROM karma WHERE id=?', (user_id,))
     tup = __c.fetchone()
     if tup:
-        if (time.time() - tup[1]) > __COOLDOWN_IN_SECONDS:
+        if (time.time() - tup[1]) > cooldown:
             __c.execute("UPDATE karma SET amount=?, timestamp=(CAST(strftime('%s', 'now') AS INT)) WHERE id=?", (tup[2]+change, user_id)) 
             await client.send_message(message.channel, '%s %s a karma. Currently: %d' % (message.server.get_member(user_id).display_name, m, tup[2]+change))
         else:
-            await client.send_message(message.channel, 'That user gained karma too recently please wait some time. %d minutes left.' % __time_left(tup[1]))
+            await client.send_message(message.channel, 'That user gained karma too recently please wait some time. %d minutes left.' % __time_left(tup[1], cooldown))
     else:
         __c.execute('INSERT INTO karma (id, amount) VALUES (?, 1)', (user_id,))
         await client.send_message(message.channel, '%s gained their first karma. Congrats!' % message.server.get_member(user_id).display_name)
@@ -47,4 +49,7 @@ def __check_karma_regex(message):
 async def handle(client, config, message):
     matches = __check_karma_regex(message)
     if matches:
-        await __update_database_if_valid(client, message, matches[0], matches[1])
+        if message.author.id == matches[0]:
+            await client.send_message(message.channel, 'You cannot edit your own karma.')
+        else:
+            await __update_database_if_valid(client, message, matches[0], matches[1])
