@@ -40,16 +40,11 @@ async def __update_database_if_valid(client, message, user_id, operation):
         __c.execute('INSERT INTO karma (id, amount) VALUES (?, 1)', (user_id,))
         await client.send_message(message.channel, '%s gained their first karma. Congrats!' % message.server.get_member(user_id).display_name)
 
-def __check_karma_regex(message):
-    matches = __KARMA_REGEX.match(message.content)
-    if not matches:
-        return
-    return (matches.group(1), matches.group(2))
-
 async def handle(client, config, message):
-    matches = __check_karma_regex(message)
+    matches = __KARMA_REGEX.findall(message.content)
     if matches:
-        if message.author.id == matches[0]:
-            await client.send_message(message.channel, 'You cannot edit your own karma.')
-        else:
-            await __update_database_if_valid(client, message, matches[0], matches[1])
+        for match in matches:
+            if message.author.id == match[0]:
+                await client.send_message(message.channel, 'You cannot edit your own karma.')
+            else:
+                await __update_database_if_valid(client, message, match[0], match[1])
