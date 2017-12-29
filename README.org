@@ -32,7 +32,7 @@
    - Giving karma has a 1 hour cooldown, taking is doubled.
 
 ** Anime
-   - {{ [Search Term }} 
+   - {{ [Search Term] }} 
    - Will search kitsu for the specified anime name and return the result
    - Commands are only valid in channels specified by the Anime Channels config option
    - *The bot does not filter any NSFW results which may appear.*
