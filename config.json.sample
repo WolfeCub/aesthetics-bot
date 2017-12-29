@@ -2,8 +2,8 @@
     "token": "Your server token",
     "prefix": "!",
     "COBALT_key": "Your Cobalt key",
-    "kitsu_id": "Your MALUser",
-    "kitsu_secret": "Your MALPass",
+    "kitsu_id": "Your Kitsu ID",
+    "kitsu_secret": "Your Kitsu Secret",
     "anime_channels": ["list", "of", "anime", "channels"],
     "school_channels": ["list", "of", "cobalt", "channels"],
     "valid_roles": ["rolls", "to", "be", "user", "assignable"]
