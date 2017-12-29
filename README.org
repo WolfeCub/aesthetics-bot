@@ -1,0 +1,47 @@
+* Aestetics-Bot
+  A bot primarilly used in the UTM MCSS discord server giving users access to a variety of different resources.
+
+** Configuration
+   - Copy config.json.sample to config.json
+**** Token
+     - Your discord server token
+     - Used to tell the bot what server to connect to
+**** Prefix
+     - The prefix used before *most* bot commands
+     - Default is !, used in this documentation
+**** Cobalt Key
+     - Your cobalt API token
+     - Used to connect to cobalt for information about UofT
+**** Kitsu ID/Secret
+     - Your kitsu API ID and Secret
+     - Used to connect to kitsu for anime searching
+**** Anime Channels
+     - A list of channel names which are allowed to have anime lookups
+**** School Channels
+     - A list of channel names which are allowed to have UofT lookups
+**** Valid Roles
+     - A list of role names which uses are allowed to self assign
+
+** Roles
+   - !giveroles [Role Name]
+   - Assigns the user a role if the role is present in the Valid Roles config option
+
+** Karma
+   - @username ++ or @username --
+   - Gives (or takes) a karma point to the username specified.
+   - Giving karma has a 1 hour cooldown, taking is doubled.
+
+** Anime
+   - {{ [Search Term] }} 
+   - Will search kitsu for the specified anime name and return the result
+   - Commands are only valid in channels specified by the Anime Channels config option
+   - *The bot does not filter any NSFW results which may appear.*
+
+** UofT
+   - [Search Term]
+   - Will automatically search any term which appears to be a course code
+   - Commands are only valid in channels specified by the School Channels config option
+
+** Cryptocurrencies
+   - !val [Token]
+   - Seaches for the current value and market changes of the token on Coin Market Cap.
