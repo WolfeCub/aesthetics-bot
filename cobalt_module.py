@@ -51,15 +51,18 @@ async def __request_course(client, message, config, course_name):
     headers = {'Authorization': config['COBALT_key']}
     
     try:
-        async with aiohttp.get('https://cobalt.qas.im/api/1.0/courses/filter', params=params, headers=headers) as r:
-            if r.status == 200:
-                course_query = await r.json()
-                if course_query == []:
-                    await client.send_message(message.channel, ':slight_frown: **||** Nothing came up.')
-                else:
-                    return course_query
+        async with aiohttp.ClientSession() as session:
+            async with session.get('https://cobalt.qas.im/api/1.0/courses/filter', params=params, headers=headers) as r:
+                if r.status == 200:
+                    course_query = await r.json()
+                    if course_query == []:
+                        await client.send_message(message.channel, ':slight_frown: **||** Nothing came up.')
+                    else:
+                        return course_query
                 
-    except HTTPException: # I don't even know if its even running into this when it does error
+    except Exception as err:
+        print("Error in cobalt module!")
+        print(err)
         await client.send_message(message.channel, 'There was an error with grabbing the information, oh no! :dizzy_face:')
             
     return None
