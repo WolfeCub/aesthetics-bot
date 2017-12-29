@@ -3,7 +3,7 @@ import re
 import discord
 from Pymoe import Kitsu
 
-__ANIME_REGEX = re.compile(r'{{(.*?)}}')
+__ANIME_REGEX = re.compile(r'.*{{(.*?)}}.*')
 __KITSU = None
 
 def __create_message_from_results(results, original_query):
