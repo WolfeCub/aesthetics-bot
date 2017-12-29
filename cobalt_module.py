@@ -17,7 +17,7 @@ def __is_cobalt_regex(message):
 
 def __create_course_embed(course):
     embed = Embed(
-        title       = course['code'][0:-1],
+        title       = course['code'][0:8],
         type        = 'rich',
         description = course['description'],
         color       = 16777215,
@@ -25,20 +25,20 @@ def __create_course_embed(course):
     )
     
     embed.add_field(name='Term', value=course['term'], inline=True)
-    embed.add_field(name='Prerequisite', value=course['prerequisites'], inline=True)
+    embed.add_field(name='Prerequisite', value="None" if course['prerequisites'] == "" else course['prerequisites'], inline=True)
     
     embed.set_footer(text='Brought to you by the Cobalt API')
     
     return embed
 
 def __clean_course_dup(course_list):
-    course_set = {course_list[0]['code'][0:-1]: course_list[0]}
+    course_set = {course_list[0]['code'][0:8]: course_list[0]}
     
     for course in course_list[1:]:
         if course['code'][0:-1] in course_set:
-            course_set[course['code'][0:-1]]['term'] += '\n %s' % course['term']
+            course_set[course['code'][0:8]]['term'] += '\n %s' % course['term']
         else:
-            course_set[course['code'][0:-1]] = course
+            course_set[course['code'][0:8]] = course
             
     return list(course_set.values())
     
