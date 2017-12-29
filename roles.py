@@ -24,5 +24,8 @@ async def handle(client, config, message):
     roles = [x.lower() for x in potential_roles[1:]]
 
     role_objects = __get_valid_roles(config, message, roles)
-    await client.add_roles(message.author, *role_objects)
-    await client.send_message(message.channel, 'Roles added: %s' % ', '.join(map(lambda x: x.name, role_objects)))
+    if len(role_objects) > 0:
+        await client.add_roles(message.author, *role_objects)
+        await client.send_message(message.channel, 'Roles added: %s' % ', '.join(map(lambda x: x.name, role_objects)))
+    else:
+        await client.send_message(message.channel, 'No valid roles specified')
