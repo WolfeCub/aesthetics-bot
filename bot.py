@@ -2,12 +2,12 @@ import os
 import json
 import discord
 import asyncio
-import anime
 import signal
-import cobalt_module
-import karma
-import roles
-import cryptocurreny
+from modules import anime
+from modules import cobalt_module
+from modules import karma
+from modules import roles
+from modules import cryptocurreny
 
 client = discord.Client()
 config = {}
