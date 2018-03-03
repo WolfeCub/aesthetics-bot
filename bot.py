@@ -30,8 +30,6 @@ def setup():
                                  'kitsu_id',
                                  'kitsu_secret',
                                  'prefix',
-                                 'anime_channels',
-                                 'school_channels',
                                  'COBALT_key'])
 
     # Import modules
@@ -77,7 +75,7 @@ async def on_message(message):
 
     # We assume that handle exists otherwise it will die
     for module in modules:
-        module.handle(client, config, message)
+        await module.handle(client, config, message)
 
 if __name__ == '__main__':
     setup()
