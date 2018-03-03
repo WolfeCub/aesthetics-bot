@@ -19,6 +19,8 @@
      - A list of channel names which are allowed to have anime lookups
 **** School Channels
      - A list of channel names which are allowed to have UofT lookups
+**** Crypto Channels
+     - A list of channel names which are allowed to have crypto value lookups
 **** Valid Roles
      - A list of role names which uses are allowed to self assign
 
