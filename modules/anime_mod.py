@@ -27,8 +27,11 @@ def __check_anime_regex(message):
         return matches.group(1)
     return None
 
-def setup(client_id, client_secret):
+def setup(config):
     global __KITSU
+
+    client_id = config['kitsu_id']
+    client_secret = config['kitsu_secret']
 
     print('Establishing connection to Kitsu... ', end='')
     __KITSU = Kitsu(client_id, client_secret)
@@ -38,6 +41,9 @@ def setup(client_id, client_secret):
     print('Done')
 
 async def handle(client, config, message):
+    if message.channel.name not in config['anime_channels']:
+        return
+
     match = __check_anime_regex(message)
     if match:
         client.send_typing(message.channel)

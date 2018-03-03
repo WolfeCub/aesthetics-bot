@@ -1,16 +1,20 @@
 import os
+import glob
 import json
 import discord
 import asyncio
-import anime
 import signal
-import cobalt_module
-import karma
-import roles
-import cryptocurreny
+from importlib import import_module
 
 client = discord.Client()
 config = {}
+modules = []
+
+def call_method_on_modules_if_exists(method_name, list_of_args):
+    for module in modules:
+        method = getattr(module, method_name, None)
+        if method is not None:
+            method(*list_of_args)
 
 def setup():
     global config
@@ -30,14 +34,21 @@ def setup():
                                  'school_channels',
                                  'COBALT_key'])
 
-    cryptocurreny.setup()
-    anime.setup(config['kitsu_id'], config['kitsu_secret'])
+    # Import modules
+    for item in glob.glob('./modules/*_mod.py'):
+        name = os.path.basename(item)[:-3]
+        modules.append(import_module('modules.%s' % name))
+
+    # Run setup if exists
+    call_method_on_modules_if_exists('setup', [config])
 
     signal.signal(signal.SIGINT, cleanup)
 
 def cleanup(signum, frame):
     print('\nExiting...')
-    karma.cleanup()
+
+    # Run cleanup if exists
+    call_method_on_modules_if_exists('cleanup', [])
     exit(0)
 
 def check_config_params(json, items):
@@ -63,15 +74,11 @@ async def on_ready():
 async def on_message(message):
     if message.author == client.user:
         return
-    if message.content.startswith(config['prefix']):
-        await roles.handle(client, config, message)
-        await cryptocurreny.handle(client, config, message)
-    else:
-        if message.channel.name in config['anime_channels']:
-            await anime.handle(client, config, message)
-        if message.channel.name in config['school_channels']:
-            await cobalt_module.handle(client, config, message)
-        await karma.handle(client, config, message)
 
-setup()
-client.run(config['token'])
+    # We assume that handle exists otherwise it will die
+    for module in modules:
+        module.handle(client, config, message)
+
+if __name__ == '__main__':
+    setup()
+    client.run(config['token'])

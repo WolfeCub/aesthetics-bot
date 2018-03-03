@@ -9,6 +9,9 @@ def __get_valid_roles(config, message, names):
     return val
 
 async def handle(client, config, message):
+    if message.content[0] != config['prefix']:
+        return
+
     content = message.content[len(config['prefix']):]
     potential_roles = content.split()
 
