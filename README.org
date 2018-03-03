@@ -1,4 +1,4 @@
-* Aestetics-Bot
+* Aesthetics-Bot
   A bot primarilly used in the UTM MCSS discord server giving users access to a variety of different resources.
 
 ** Configuration
