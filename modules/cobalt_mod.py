@@ -68,6 +68,9 @@ async def __request_course(client, message, config, course_name):
     return None
             
 async def handle(client, config, message):
+    if message.channel.name not in config['school_channels']:
+        return
+
     if not __is_cobalt_regex(message):
         return
     

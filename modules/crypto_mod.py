@@ -20,7 +20,7 @@ def __create_message(result):
     embed.add_field(name='7 Day Change:', value='%s%%' % result['percent_change_7d'])
     return embed
 
-def setup():
+def setup(config):
     print('Fetching cryptocurrency tokens...', end='')
     total_coins = 0
     global currency_mapping
@@ -36,6 +36,9 @@ def setup():
         print('%s\n' % err)
 
 async def handle(client, config, message):
+    if message.content[0] != config['prefix']:
+        return
+
     content = message.content[len(config['prefix']):]
     command_args = content.split()
 
