@@ -33,11 +33,13 @@ async def __update_database_if_valid(client, message, user_id, operation):
     if tup:
         if (time.time() - tup[1]) > cooldown:
             __c.execute("UPDATE karma SET amount=?, timestamp=(CAST(strftime('%s', 'now') AS INT)) WHERE id=?", (tup[2]+change, user_id)) 
+            __connection.commit()
             await client.send_message(message.channel, '%s %s a karma. Currently: %d' % (message.server.get_member(user_id).display_name, m, tup[2]+change))
         else:
             await client.send_message(message.channel, 'That user gained karma too recently please wait some time. %d minutes left.' % __time_left(tup[1], cooldown))
     else:
         __c.execute('INSERT INTO karma (id, amount) VALUES (?, 1)', (user_id,))
+        __connection.commit()
         await client.send_message(message.channel, '%s gained their first karma. Congrats!' % message.server.get_member(user_id).display_name)
 
 async def handle(client, config, message):
@@ -47,4 +49,5 @@ async def handle(client, config, message):
             if message.author.id == match[0]:
                 await client.send_message(message.channel, 'You cannot edit your own karma.')
             else:
+                client.send_typing(message.channel)
                 await __update_database_if_valid(client, message, match[0], match[1])
