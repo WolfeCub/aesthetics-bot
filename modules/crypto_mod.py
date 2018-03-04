@@ -1,5 +1,6 @@
-from coinmarketcap import Market
 import discord
+from botutils import is_channel_valid
+from coinmarketcap import Market
 
 currency_mapping = {}
 
@@ -36,6 +37,9 @@ def setup(config):
         print('%s\n' % err)
 
 async def handle(client, config, message):
+    if is_channel_valid(config, 'crypto_channels', message):
+        return
+
     if message.content[0] != config['prefix']:
         return
 
