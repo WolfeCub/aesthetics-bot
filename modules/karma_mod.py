@@ -38,9 +38,9 @@ async def __update_database_if_valid(client, message, user_id, operation):
         else:
             await client.send_message(message.channel, 'That user gained karma too recently please wait some time. %d minutes left.' % __time_left(tup[1], cooldown))
     else:
-        __c.execute('INSERT INTO karma (id, amount) VALUES (?, 1)', (user_id,))
+        __c.execute('INSERT INTO karma (id, amount) VALUES (?, ?)', (user_id,change))
         __connection.commit()
-        await client.send_message(message.channel, '%s gained their first karma. Congrats!' % message.server.get_member(user_id).display_name)
+        await client.send_message(message.channel, '%s %s their first karma.' % (message.server.get_member(user_id).display_name, 'gained' if change > 0 else 'lost'))
 
 async def handle(client, config, message):
     matches = __KARMA_REGEX.findall(message.content)
