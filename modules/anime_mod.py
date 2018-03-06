@@ -4,11 +4,25 @@ import discord
 from botutils import is_channel_valid
 from Pymoe import Kitsu
 
-__ANIME_REGEX = re.compile(r'.*{{(.*?)}}.*')
+__ANIME_GET_REGEX = re.compile(r'.*{{(.*?)}}.*')
+__ANIME_SEARCH_REGEX = re.compile(r'.*\[\[(.*?)\]\].*')
 __KITSU = None
 
-def __create_message_from_results(results, original_query):
-    anime = results[0]['attributes']
+def __create_small_embed_from_result(result, index):
+    anime = result['attributes']
+    embed = discord.Embed(
+        title       = '%d) %s' % (index+1, anime['canonicalTitle']),
+        type        = 'rich',
+        description = ' '.join(re.sub(r'\[Written by MAL Rewrite\]|\(Source: .*?\)', '', anime['synopsis']).split()[0:7]) + '...',
+        url         = 'https://kitsu.io/anime/%s' % anime['slug']
+        )
+    embed.set_thumbnail(url=anime['posterImage']['large'])
+    embed.add_field(name='Score', value=anime['averageRating'])
+    embed.add_field(name='Status', value=anime['status'].title())
+    return embed
+
+def __create_full_embed_from_result(result):
+    anime = result['attributes']
     embed = discord.Embed(
         title       = anime['canonicalTitle'],
         type        = 'rich',
@@ -22,8 +36,36 @@ def __create_message_from_results(results, original_query):
     embed.add_field(name='Aired', value='%s\n%s' % (anime['startDate'], anime['endDate']))
     return embed
 
-def __check_anime_regex(message):
-    matches = __ANIME_REGEX.match(message.content)
+def __get_range(results):
+    l = len(results)
+    return 3 if l > 3 else l
+
+async def __delete_messages(client, messages):
+    for mes in messages:
+        await client.delete_message(mes)
+
+async def __send_full_embed(client, message, results, reply):
+    try:
+        await client.send_message(message.channel, embed=__create_full_embed_from_result(results[int(reply.content)-1]))
+    except ValueError:
+        await client.send_message(message.channel, 'Invalid selection. You must select a number.')
+
+async def __anime_search(client, message, results):
+    if results is None:
+        return
+    messages_to_delete = []
+
+    for i in range(__get_range(results)):
+        messages_to_delete.append(await client.send_message(message.channel, embed=__create_small_embed_from_result(results[i], i)))
+
+    reply = await client.wait_for_message(timeout=60, author=message.author, check=lambda m: m.channel.name == message.channel.name)
+    messages_to_delete.append(reply)
+
+    await __send_full_embed(client, message, results, reply)
+    await __delete_messages(client, messages_to_delete)
+
+def __check_regex(message, regex):
+    matches = regex.match(message.content)
     if matches:
         return matches.group(1)
     return None
@@ -45,11 +87,16 @@ async def handle(client, config, message):
     if is_channel_valid(config, 'anime_channels', message):
         return
 
-    match = __check_anime_regex(message)
-    if match:
+    get_match    = __check_regex(message, __ANIME_GET_REGEX)
+    search_match = __check_regex(message, __ANIME_SEARCH_REGEX)
+
+    match = search_match if search_match else get_match
+    if match is not None:
         client.send_typing(message.channel)
         results = __KITSU.anime.search(match)
-        if results:
-            await client.send_message(message.channel, embed=__create_message_from_results(results, match))
+        if results is not None and get_match is not None:
+            await client.send_message(message.channel, embed=__create_full_embed_from_result(results[0]))
+        elif search_match is not None:
+            await __anime_search(client, message, results)
         else:
             await client.send_message(message.channel, 'No results found.')
