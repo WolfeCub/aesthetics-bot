@@ -1,6 +1,7 @@
 discord.py[voice]
 coinmarketcap
 Pillow
+pymongo
 
 ujson
 requests

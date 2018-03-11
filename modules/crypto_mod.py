@@ -40,10 +40,10 @@ async def handle(client, config, message):
     if is_channel_valid(config, 'crypto_channels', message):
         return
 
-    if message.content[0] != config['prefix']:
+    if not has_prefix(config, message):
         return
 
-    content = message.content[len(config['prefix']):]
+    content = get_content_without_prefix(config, message)
     command_args = content.split()
 
     if len(command_args) != 2:
