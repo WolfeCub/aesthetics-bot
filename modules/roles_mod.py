@@ -1,4 +1,5 @@
 import discord
+from botutils import has_prefix, get_content_without_prefix
 
 def __get_valid_roles(config, message, names):
     val = []
@@ -9,10 +10,10 @@ def __get_valid_roles(config, message, names):
     return val
 
 async def handle(client, config, message):
-    if message.content[0] != config['prefix']:
+    if not has_prefix(config, message):
         return
 
-    content = message.content[len(config['prefix']):]
+    content = get_content_without_prefix(config, message)
     potential_roles = content.split()
 
     if potential_roles[0] != 'giveroles':
