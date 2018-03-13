@@ -13,6 +13,13 @@ def setup(config):
 def cleanup():
     __client.close()
 
+def __log_karma_given_event(message, user_id):
+    __client.aesthetics.users.update({'_id': message.author.id}, {'$inc': {f'karma_given.{user_id}': 1}}, upsert=True)
+
+def __log_karma_received_event(message, user_id):
+    __client.aesthetics.users.update({'_id': user_id}, {'$inc': {f'karma_from.{message.author.id}': 1}}, upsert=True)
+    pass
+
 def __time_left(time_in_db, cooldown):
     return (cooldown/60) - ((time.time() - time_in_db)/60)
 
@@ -31,11 +38,15 @@ async def __update_database_if_valid(client, message, user_id, operation):
     if result is not None and result.get('karma_timestamp', False):
         if (time.time() - result['karma_timestamp']) > cooldown:
             __client.aesthetics.users.update_one({'_id': user_id}, {'$inc': {'karma': change}, '$set': {'karma_timestamp': time.time()}})
+            __log_karma_given_event(message, user_id)
+            __log_karma_received_event(message, user_id)
             await client.send_message(message.channel, '%s %s a karma. Currently: %d' % (message.server.get_member(user_id).display_name, m, result['karma']+change))
         else:
             await client.send_message(message.channel, 'That user gained karma too recently please wait some time. %d minutes left.' % __time_left(result['karma_timestamp'], cooldown))
     else:
         __client.aesthetics.users.update_one({'_id': user_id}, {'$inc': {'karma': change}, '$set': {'karma_timestamp': time.time()}}, upsert=True)
+        __log_karma_given_event(message, user_id)
+        __log_karma_received_event(message, user_id)
         await client.send_message(message.channel, '%s %s their first karma.' % (message.server.get_member(user_id).display_name, 'gained' if change > 0 else 'lost'))
 
 async def handle(client, config, message):
