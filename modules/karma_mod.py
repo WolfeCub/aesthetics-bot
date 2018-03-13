@@ -18,7 +18,6 @@ def __log_karma_given_event(message, user_id):
 
 def __log_karma_received_event(message, user_id):
     __client.aesthetics.users.update({'_id': user_id}, {'$inc': {f'karma_from.{message.author.id}': 1}}, upsert=True)
-    pass
 
 def __time_left(time_in_db, cooldown):
     return (cooldown/60) - ((time.time() - time_in_db)/60)
