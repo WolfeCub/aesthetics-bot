@@ -1,19 +1,17 @@
 import time
 import re
-import sqlite3
+from pymongo import MongoClient
 
 __KARMA_REGEX = re.compile(r'<@!{0,1}(\d*?)> {0,1}(\+\+|--)')
-__COOLDOWN_IN_SECONDS = 3600
-__connection = sqlite3.connect('karma.db')
-__c = __connection.cursor()
-__c.execute("CREATE TABLE IF NOT EXISTS karma(\
- id int PRIMARY KEY NOT NULL,\
- timestamp datetime DEFAULT (CAST(strftime('%s', 'now') AS INT)),\
- amount int NOT NULL);")
+__COOLDOWN_IN_SECONDS = 1#3600
+__client = None
+
+def setup(config):
+    global __client
+    __client = MongoClient('localhost', 27017)
 
 def cleanup():
-    __connection.commit()
-    __connection.close()
+    __client.close()
 
 def __time_left(time_in_db, cooldown):
     return (cooldown/60) - ((time.time() - time_in_db)/60)
@@ -28,18 +26,16 @@ async def __update_database_if_valid(client, message, user_id, operation):
         change = -1
         m = 'lost'
 
-    __c.execute('SELECT * FROM karma WHERE id=?', (user_id,))
-    tup = __c.fetchone()
-    if tup:
-        if (time.time() - tup[1]) > cooldown:
-            __c.execute("UPDATE karma SET amount=?, timestamp=(CAST(strftime('%s', 'now') AS INT)) WHERE id=?", (tup[2]+change, user_id)) 
-            __connection.commit()
-            await client.send_message(message.channel, '%s %s a karma. Currently: %d' % (message.server.get_member(user_id).display_name, m, tup[2]+change))
+    result = __client.aesthetics.users.find_one({'_id': user_id})
+
+    if result is not None and result.get('karma_timestamp', False):
+        if (time.time() - result['karma_timestamp']) > cooldown:
+            __client.aesthetics.users.update_one({'_id': user_id}, {'$inc': {'karma': change}, '$set': {'karma_timestamp': time.time()}})
+            await client.send_message(message.channel, '%s %s a karma. Currently: %d' % (message.server.get_member(user_id).display_name, m, result['karma']+change))
         else:
-            await client.send_message(message.channel, 'That user gained karma too recently please wait some time. %d minutes left.' % __time_left(tup[1], cooldown))
+            await client.send_message(message.channel, 'That user gained karma too recently please wait some time. %d minutes left.' % __time_left(result['karma_timestamp'], cooldown))
     else:
-        __c.execute('INSERT INTO karma (id, amount) VALUES (?, ?)', (user_id,change))
-        __connection.commit()
+        __client.aesthetics.users.update_one({'_id': user_id}, {'$inc': {'karma': change}, '$set': {'karma_timestamp': time.time()}}, upsert=True)
         await client.send_message(message.channel, '%s %s their first karma.' % (message.server.get_member(user_id).display_name, 'gained' if change > 0 else 'lost'))
 
 async def handle(client, config, message):
