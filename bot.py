@@ -6,6 +6,7 @@ import discord
 import asyncio
 import signal
 import inspect
+import logging
 from importlib import import_module
 
 client = discord.Client()
@@ -39,6 +40,12 @@ def setup():
                                  'kitsu_secret',
                                  'prefix',
                                  'COBALT_key'])
+
+    logger = logging.getLogger('discord')
+    logger.setLevel(logging.DEBUG)
+    handler = logging.FileHandler(filename='logfile.log', encoding='utf-8', mode='w')
+    handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
+    logger.addHandler(handler)
 
     # Import modules
     for item in glob.glob('./modules/*_mod.py'):

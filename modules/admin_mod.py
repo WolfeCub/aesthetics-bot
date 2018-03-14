@@ -19,7 +19,7 @@ async def __handle_clear(client, message, args):
 
 
 async def handle(client, config, message):
-    if message.author.top_role.name in __VALID_ROLES:
+    if message.author.top_role.name not in __VALID_ROLES:
         return
 
     if not has_prefix(config, message):

@@ -42,7 +42,7 @@ async def __handle_spoiler(client, message, text):
     path = f'/tmp/{message.id}.gif'
 
     spoilIMG[0].save(path, format='GIF', save_all=True, append_images=[spoilIMG[1]], duration=[0, 0xFFFF], loop=0)
-    await client.send_file(message.channel, path)
+    await client.send_file(message.channel, path, content=f'{message.author.nick if message.author.nick is not None else message.author.name} says: ')
 
     os.remove(path)
 
