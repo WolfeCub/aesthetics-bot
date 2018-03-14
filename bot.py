@@ -5,6 +5,7 @@ import json
 import discord
 import asyncio
 import signal
+import inspect
 import logging
 from importlib import import_module
 
@@ -17,6 +18,12 @@ def call_method_on_modules_if_exists(method_name, list_of_args):
         method = getattr(module, method_name, None)
         if method is not None:
             method(*list_of_args)
+
+async def call_method_on_modules_if_exists_async(method_name, list_of_args):
+    for module in modules:
+        method = getattr(module, method_name, None)
+        if method is not None:
+            await method(*list_of_args)
 
 def setup():
     global config
@@ -84,6 +91,26 @@ async def on_message(message):
     # We assume that handle exists otherwise it will die
     for module in modules:
         await module.handle(client, config, message)
+
+@client.event
+async def on_message_delete(message):
+    await call_method_on_modules_if_exists_async('handle_message_delete', [client, message])
+
+@client.event
+async def on_message_edit(before, after):
+    await call_method_on_modules_if_exists_async('handle_message_edit', [client, before, after])
+
+@client.event
+async def on_reaction_add(reaction, user):
+    await call_method_on_modules_if_exists_async('handle_reaction_add', [client, reaction, user])
+
+@client.event
+async def on_reaction_remove(reaction, user):
+    await call_method_on_modules_if_exists_async('handle_reaction_remove', [client, reaction, user])
+
+@client.event
+async def on_reaction_clear(message, reactions):
+    await call_method_on_modules_if_exists_async('handle_reaction_clear', [client, message, reactions])
 
 if __name__ == '__main__':
     setup()
