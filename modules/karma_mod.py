@@ -3,7 +3,7 @@ import re
 from pymongo import MongoClient
 
 __KARMA_REGEX = re.compile(r'<@!{0,1}(\d*?)> {0,1}(\+\+|--)')
-__COOLDOWN_IN_SECONDS = 1#3600
+__COOLDOWN_IN_SECONDS = 3600
 __client = None
 
 def setup(config):
