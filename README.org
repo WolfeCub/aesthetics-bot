@@ -2,7 +2,7 @@
   A bot primarilly used in the UTM MCSS discord server giving users access to a variety of different resources.
 
 ** Configuration
-   - Copy config.json.sample to config.json
+   - Copy =docs/config.json.sample= to =config.json=
 **** Token
      - Your discord server token
      - Used to tell the bot what server to connect to
