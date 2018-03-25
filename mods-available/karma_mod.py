@@ -8,7 +8,7 @@ __client = None
 
 def setup(config):
     global __client
-    __client = MongoClient('localhost', 27017)
+    __client = MongoClient(config['mongo_connection'])
 
 def cleanup():
     __client.close()

@@ -4,3 +4,4 @@ __pycache__
 *.sqlite
 *.log
 *.swp
+mods-enabled/*

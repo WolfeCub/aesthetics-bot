@@ -1,5 +1,5 @@
 import discord
-from botutils import is_channel_valid
+from botutils import is_channel_valid, has_prefix, get_content_without_prefix
 from coinmarketcap import Market
 
 currency_mapping = {}
