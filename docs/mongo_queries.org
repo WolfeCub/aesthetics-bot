@@ -1,0 +1,4 @@
+* Most Messages Sent
+#+BEGIN_SRC
+db.users.aggregate([{ $project:{ messages_sent: { $objectToArray: "$messages_sent" }, name: "$name" } }, { $unwind: "$messages_sent"}, { $group: { _id: "$_id", total_messages_sent: { $sum: "$messages_sent.v" }, name: { $first: "$name" } } }, { $sort: { "total_messages_sent": -1 } }])
+#+END_SRC
