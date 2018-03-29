@@ -11,7 +11,7 @@ def __add_fields_to_edmbed(embed, stats, game_type):
     win_percent = (wins/matches)*100
 
     embed.add_field(name=f'{game_type} Wins', value=wins)
-    embed.add_field(name=f'{game_type} Win%', value=f"{wins}/{matches} = *{win_percent:.1f}%*")
+    embed.add_field(name=f'{game_type} Win%', value=f"{wins}/{matches} = **{win_percent:.1f}%**")
     embed.add_field(name=f'{game_type} K/d', value=stats['kd']['value'])
 
 def __create_embed_from_result(result, username, platform='pc'):
