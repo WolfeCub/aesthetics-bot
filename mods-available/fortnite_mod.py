@@ -17,7 +17,6 @@ def __add_fields_to_edmbed(embed, stats, game_type):
 def __create_embed_from_result(result, username, platform='pc'):
     embed = discord.Embed(
         title       = result['epicUserHandle'],
-        #type        = 'rich',
         url         = f'https://fortnitetracker.com/profile/{platform}/{username}'
         )
 
@@ -59,5 +58,14 @@ async def handle(client, config, message):
     url = f'https://api.fortnitetracker.com/v1/profile/{platform}/{username}'
     request = requests.get(url, headers={'TRN-Api-Key': config['fortnite_tracker_apikey']})
 
+    if not request.ok:
+        await client.send_message(message.channel, "Error: A request error returned.")
+        return
+
     r_result = json.loads(request.content)
-    await client.send_message(message.channel, embed=__create_embed_from_result(r_result, platform))
+
+    error = r_result.get('error')
+    if error is not None:
+        await client.send_message(message.channel, f"Error: {error}")
+    else:
+        await client.send_message(message.channel, embed=__create_embed_from_result(r_result, platform))
