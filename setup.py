@@ -1,5 +1,7 @@
 import os
 import json
+from json.decoder import JSONDecodeError
+from contextlib import suppress
 
 def files(path):
     for file in os.listdir(path):
@@ -12,6 +14,8 @@ def read_new_config(sample_path):
         sample_config = json.loads(f.read())
         for key in sample_config:
             value = input(f'{key}: ')
+            with suppress(JSONDecodeError):
+                value = json.loads(value)
             if value is not None and value != '':
                 config[key] = value
 
@@ -32,6 +36,7 @@ if __name__ == '__main__':
         conf = read_new_config('docs/config.json.sample')
         write_config_to_file(conf, 'config.json')
 
+    print('\nSelect the modules you wish to enable: ')
     # Enable desired modules
     for file in files('mods-available/'):
         inpt = input(f'Link {file}? (y/N): ')
