@@ -2,6 +2,7 @@ import re
 import asyncio
 import aiohttp
 import json
+import time
 from datetime import datetime as dt
 from discord import Embed
 from botutils import is_channel_valid
@@ -106,11 +107,11 @@ async def __request_shuttle_times(client, message, config):
     '''
     Grabs the current day's shuttle times.
     '''
-    now = dt.now().isoformat()
+    now = time.strftime('%Y-%m-%d')
 
     try:
         async with aiohttp.ClientSession() as session:
-            async with session.get('https://cobalt.qas.im/api/1.0/%s' % now, headers=__HEADERS) as r:
+            async with session.get('https://cobalt.qas.im/api/1.0/transportation/shuttles/%s' % now, headers=__HEADERS) as r:
                 if r.status == 200:
                     shuttle_times = await r.json()
                     if shuttle_times == []:
