@@ -10,7 +10,12 @@ __COURSE_REGEX = re.compile(r'\A[a-zA-Z]{3}(?:[a-dA-D]\d{2}|\d{3})\Z')
 __EXAM_REGEX = re.compile(r'exam \A[a-zA-Z]{3}(?:[a-dA-D]\d{2}|\d{3})\Z')
 __SHUTTLE_REGEX = re.compile(r'!shuttle')
 
-headers = {'Authorization': config['COBALT_key']}
+__HEADERS = None
+
+def __set_headers(config):
+    global __HEADERS
+    if __HEADERS is None:
+        __HEADERS = {'Authorization': config['COBALT_key']}
 
 def __is_cobalt_regex(message, regex):
     '''
@@ -101,7 +106,7 @@ async def __request_shuttle_times(client, message, config):
     '''
     Grabs the current day's shuttle times.
     '''
-    const now = dt.date().isoformat()
+    now = dt.date().isoformat()
 
     try:
         async with aiohttp.ClientSession() as session:
@@ -112,10 +117,14 @@ async def __request_shuttle_times(client, message, config):
                         await client.send_message(message.channel, 'No shuttles running today. :(')
                     else:
                         return shuttle_times
+    except:
+        await client.send_message(message.channel, 'Error contacting server')
 
 async def handle(client, config, message):
     if is_channel_valid(config, 'school_channels', message):
         return
+
+    __set_headers(config)
 
     # Do the cobalt shuttle things
     if (__is_cobalt_regex(message, __SHUTTLE_REGEX)):
@@ -139,7 +148,7 @@ async def handle(client, config, message):
 
     # Do the cobalt exam things
     if (__is_cobalt_regex(message, __EXAM_REGEX)):
-        continue
+        pass
 
 
 
