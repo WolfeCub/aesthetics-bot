@@ -2,6 +2,7 @@ import re
 import asyncio
 import aiohttp
 import json
+import time
 from datetime import datetime as dt
 from discord import Embed
 from botutils import is_channel_valid
@@ -10,7 +11,12 @@ __COURSE_REGEX = re.compile(r'\A[a-zA-Z]{3}(?:[a-dA-D]\d{2}|\d{3})\Z')
 __EXAM_REGEX = re.compile(r'exam \A[a-zA-Z]{3}(?:[a-dA-D]\d{2}|\d{3})\Z')
 __SHUTTLE_REGEX = re.compile(r'!shuttle')
 
-headers = {'Authorization': config['COBALT_key']}
+__HEADERS = None
+
+def __set_headers(config):
+    global __HEADERS
+    if __HEADERS is None:
+        __HEADERS = {'Authorization': config['COBALT_key']}
 
 def __is_cobalt_regex(message, regex):
     '''
@@ -82,7 +88,7 @@ async def __request_course(client, message, config):
 
     try:
         async with aiohttp.ClientSession() as session:
-            async with session.get('https://cobalt.qas.im/api/1.0/courses/filter', params=params, headers=headers) as r:
+            async with session.get('https://cobalt.qas.im/api/1.0/courses/filter', params=params, headers=__HEADERS) as r:
                 if r.status == 200:
                     course_query = await r.json()
                     if course_query == []:
@@ -101,30 +107,34 @@ async def __request_shuttle_times(client, message, config):
     '''
     Grabs the current day's shuttle times.
     '''
-    const now = dt.date().isoformat()
+    now = time.strftime('%Y-%m-%d')
 
     try:
         async with aiohttp.ClientSession() as session:
-            async with session.get('https://cobalt.qas.im/api/1.0/%s' % now, headers=headers) as r:
+            async with session.get('https://cobalt.qas.im/api/1.0/transportation/shuttles/%s' % now, headers=__HEADERS) as r:
                 if r.status == 200:
                     shuttle_times = await r.json()
                     if shuttle_times == []:
                         await client.send_message(message.channel, 'No shuttles running today. :(')
                     else:
                         return shuttle_times
+    except:
+        await client.send_message(message.channel, 'Error contacting server')
 
 async def handle(client, config, message):
     if is_channel_valid(config, 'school_channels', message):
         return
 
-    # Do the cobalt shuttle things
-    if (__is_cobalt_regex(message, __SHUTTLE_REGEX)):
-        shuttle_times = await __request_shuttle_times(client, message, config)
+    __set_headers(config)
 
-        if shuttle_times:
-            for shuttle in shuttle_times:
-                await client.send_message(message.channel,
-                                         embed= __create_shuttle_embed(shuttle))
+    # Do the cobalt shuttle things
+    # if (__is_cobalt_regex(message, __SHUTTLE_REGEX)):
+    #     shuttle_times = await __request_shuttle_times(client, message, config)
+
+    #     if shuttle_times:
+    #         for shuttle in shuttle_times:
+    #             await client.send_message(message.channel,
+    #                                      embed= __create_shuttle_embed(shuttle))
 
     # Do the cobalt course things
     if (__is_cobalt_regex(message, __COURSE_REGEX)):
@@ -138,8 +148,6 @@ async def handle(client, config, message):
                                           embed= __create_course_embed(course))
 
     # Do the cobalt exam things
-    if (__is_cobalt_regex(message, __EXAM_REGEX)):
-        continue
-
-
+    # if (__is_cobalt_regex(message, __EXAM_REGEX)):
+    #     pass
 
