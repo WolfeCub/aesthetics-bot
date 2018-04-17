@@ -1,11 +1,13 @@
+#!/usr/bin/env python3
 import os
 import json
 from json.decoder import JSONDecodeError
 from contextlib import suppress
 
-def files(path):
-    for file in os.listdir(path):
-        if os.path.isfile(os.path.join(path, file)):
+def get_unlinked_files(source, target):
+    for file in os.listdir(source):
+        if os.path.isfile(os.path.join(source, file)) and \
+           not os.path.exists(os.path.join(target, file)):
             yield file
 
 def read_new_config(sample_path):
@@ -32,13 +34,16 @@ if __name__ == '__main__':
 
     # Create config on first run
     if not os.path.exists('config.json'):
+        print("No config file found. Creating 'config.json' ...")
         print('Enter the value for each config setting. Pressing enter will skip it.')
         conf = read_new_config('docs/config.json.sample')
         write_config_to_file(conf, 'config.json')
+    else:
+        print('Config file already exists. Skipping ...')
 
     print('\nSelect the modules you wish to enable: ')
     # Enable desired modules
-    for file in files('mods-available/'):
+    for file in get_unlinked_files('mods-available/', 'mods-enabled/'):
         inpt = input(f'Link {file}? (y/N): ')
         if inpt != 'y':
             print(f'Skipping {file}')
