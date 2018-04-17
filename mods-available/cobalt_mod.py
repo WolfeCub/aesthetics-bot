@@ -128,13 +128,13 @@ async def handle(client, config, message):
     __set_headers(config)
 
     # Do the cobalt shuttle things
-    if (__is_cobalt_regex(message, __SHUTTLE_REGEX)):
-        shuttle_times = await __request_shuttle_times(client, message, config)
+    # if (__is_cobalt_regex(message, __SHUTTLE_REGEX)):
+    #     shuttle_times = await __request_shuttle_times(client, message, config)
 
-        if shuttle_times:
-            for shuttle in shuttle_times:
-                await client.send_message(message.channel,
-                                         embed= __create_shuttle_embed(shuttle))
+    #     if shuttle_times:
+    #         for shuttle in shuttle_times:
+    #             await client.send_message(message.channel,
+    #                                      embed= __create_shuttle_embed(shuttle))
 
     # Do the cobalt course things
     if (__is_cobalt_regex(message, __COURSE_REGEX)):
@@ -148,8 +148,6 @@ async def handle(client, config, message):
                                           embed= __create_course_embed(course))
 
     # Do the cobalt exam things
-    if (__is_cobalt_regex(message, __EXAM_REGEX)):
-        pass
-
-
+    # if (__is_cobalt_regex(message, __EXAM_REGEX)):
+    #     pass
 
