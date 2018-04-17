@@ -87,7 +87,7 @@ async def __request_course(client, message, config):
 
     try:
         async with aiohttp.ClientSession() as session:
-            async with session.get('https://cobalt.qas.im/api/1.0/courses/filter', params=params, headers=headers) as r:
+            async with session.get('https://cobalt.qas.im/api/1.0/courses/filter', params=params, headers=__HEADERS) as r:
                 if r.status == 200:
                     course_query = await r.json()
                     if course_query == []:
@@ -106,11 +106,11 @@ async def __request_shuttle_times(client, message, config):
     '''
     Grabs the current day's shuttle times.
     '''
-    now = dt.date().isoformat()
+    now = dt.now().isoformat()
 
     try:
         async with aiohttp.ClientSession() as session:
-            async with session.get('https://cobalt.qas.im/api/1.0/%s' % now, headers=headers) as r:
+            async with session.get('https://cobalt.qas.im/api/1.0/%s' % now, headers=__HEADERS) as r:
                 if r.status == 200:
                     shuttle_times = await r.json()
                     if shuttle_times == []:
