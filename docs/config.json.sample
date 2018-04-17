@@ -7,5 +7,7 @@
     "anime_channels": ["list", "of", "anime", "channels"],
     "school_channels": ["list", "of", "cobalt", "channels"],
     "crypto_channels": ["list", "of", "crypto", "channels"],
-    "valid_roles": ["rolls", "to", "be", "user", "assignable"]
+    "valid_roles": ["rolls", "to", "be", "user", "assignable"],
+    "mongo_connection": "mongo://user:pass@ip:port",
+    "fortnite_tracker_apikey": "snthoasnueth-snoeaaub-sheu"
 }

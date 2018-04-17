@@ -4,6 +4,7 @@ import aiohttp
 import json
 from datetime import datetime as dt
 from discord import Embed
+from botutils import is_channel_valid
 
 __COURSE_REGEX = re.compile(r'\A[a-zA-Z]{3}(?:[a-dA-D]\d{2}|\d{3})\Z')
 __EXAM_REGEX = re.compile(r'exam \A[a-zA-Z]{3}(?:[a-dA-D]\d{2}|\d{3})\Z')
@@ -107,7 +108,7 @@ async def __request_shuttle_times(client, message, config):
                         return shuttle_times                   
             
 async def handle(client, config, message):
-    if message.channel.name not in config['school_channels']:
+    if is_channel_valid(config, 'school_channels', message):
         return
     
     # Do the cobalt shuttle things

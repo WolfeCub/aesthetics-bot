@@ -48,9 +48,9 @@ def setup():
     logger.addHandler(handler)
 
     # Import modules
-    for item in glob.glob('./modules/*_mod.py'):
+    for item in glob.glob('./mods-enabled/*_mod.py'):
         name = os.path.basename(item)[:-3]
-        modules.append(import_module('modules.%s' % name))
+        modules.append(import_module('mods-enabled.%s' % name))
 
     # Run setup if exists
     call_method_on_modules_if_exists('setup', [config])
