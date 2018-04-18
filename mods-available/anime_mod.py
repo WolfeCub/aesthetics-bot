@@ -1,7 +1,7 @@
 import sys
 import re
 import discord
-from botutils import is_channel_valid
+from botutils import *
 from Pymoe import Kitsu
 
 __ANIME_GET_REGEX = re.compile(r'.*{{(.*?)}}.*')
@@ -84,7 +84,7 @@ def setup(config):
     print('Done')
 
 async def handle(client, config, message):
-    if is_channel_valid(config, 'anime_channels', message):
+    if not is_channel_valid(config, 'anime_channels', message):
         return
 
     get_match    = __check_regex(message, __ANIME_GET_REGEX)

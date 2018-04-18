@@ -1,5 +1,5 @@
 import discord
-from botutils import is_channel_valid, has_prefix, get_content_without_prefix
+from botutils import *
 from coinmarketcap import Market
 
 currency_mapping = {}
@@ -37,7 +37,7 @@ def setup(config):
         print('%s\n' % err)
 
 async def handle(client, config, message):
-    if is_channel_valid(config, 'crypto_channels', message):
+    if not is_channel_valid(config, 'crypto_channels', message):
         return
 
     if not has_prefix(config, message):
