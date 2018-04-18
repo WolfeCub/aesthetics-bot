@@ -5,7 +5,7 @@ import json
 import time
 from datetime import datetime as dt
 from discord import Embed
-from botutils import is_channel_valid
+from botutils import *
 
 __COURSE_REGEX = re.compile(r'\A[a-zA-Z]{3}(?:[a-dA-D]\d{2}|\d{3})\Z')
 __EXAM_REGEX = re.compile(r'exam \A[a-zA-Z]{3}(?:[a-dA-D]\d{2}|\d{3})\Z')
@@ -122,7 +122,7 @@ async def __request_shuttle_times(client, message, config):
         await client.send_message(message.channel, 'Error contacting server')
 
 async def handle(client, config, message):
-    if is_channel_valid(config, 'school_channels', message):
+    if not is_channel_valid(config, 'school_channels', message):
         return
 
     __set_headers(config)
