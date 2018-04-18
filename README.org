@@ -1,4 +1,5 @@
 * Aesthetics-Bot
+  #+HTML: <a href="https://travis-ci.org/utmmcss/aesthetics-bot"><img style="width:90px" src="https://travis-ci.org/utmmcss/aesthetics-bot.svg?branch=master" alt="Build Status"/></a><br><br>
   A bot primarilly used in the UTM MCSS discord server giving users access to a variety of different resources.
 
 ** Configuration
