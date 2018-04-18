@@ -1,0 +1,74 @@
+* Contributing
+** Project Layout
+  #+BEGIN_SRC text
+    aesthetics-bot
+     +-- bot.py
+     +-- botutils.py
+     +-- config.json
+     +-- Pymoe/ -> pymoe-src/Pymoe/
+     |   +-- Anilist
+     |   +-- Kitsu
+     |   +-- Mal
+     +-- modules/
+     |   +-- anime_mod.py
+     |   +-- cobalt_mod.py
+     |   +-- crypto_mod.py
+     |   +-- karma_mod.py
+     |   +-- roles_mod.py
+  #+END_SRC 
+
+  - =bot.py= is the entry point for the bot. It handles the loading of all
+    of the commands and config. It is also responsible for the main event
+    loop of the program.
+  - =botutils.py= contains a few useful utility functions.
+  - =config.json= holds all of the user settings. Refer to =config.json.sample=
+  - =Pymoe/= is a 3rd party module that is used for the anime module.
+  - =modules/= is where all of the bot commands live. Each file is responsible
+    for one command.
+
+** =modules/= In More Detail
+   =bot.py= automatically will import any file of the format =<name>_mod.py= in
+   the modules folder. Each module has a few standardized functions that it
+   implements. 
+
+   - =async def handle(client, config, message)= of each module is run each time a message
+     is sent anywhere in the chat. It is up to the module if it wants to do anything
+     with the message. It can check for a command i.e. =!val xmr= or any other
+     criteria it wants to use. Nothing precludes multiple commands from acting on the
+     same message though it's probably a bad idea.
+   - =def setup(config)= is called once when the bot is starts and is usually used to
+     to do things like initialize database connections or establish a connection to a
+     remote server.
+   - =daf cleanup()= is called when the bot is stopped and can be used to tie off any
+     loose ends i.e. close your connections.
+
+     
+   - =client= is the instance of the [[http://discordpy.readthedocs.io/en/latest/api.html][discord.py]] connection to the discord server.
+   - =config= is a dictionary of =string= -> =string= that is the values loaded from
+     =config.json= when the bot loads.
+   - =message= is the current message that the bot is handling.
+
+** A Simple Example
+   Let's say we want to make a simple command that greets somebody whenever it detects
+   the words 'hello' and 'bot' in the same message.
+
+   #+BEGIN_SRC python
+     import re
+
+     __REGEX = None
+
+     def setup(config):
+         __REGEX = re.compile(r'.*hello.*bot.*')
+
+     async def handle(client, config, message):
+         if __REGEX.match(message.content) is None:
+             return
+
+         await client.send_message(message.channel, 'Hello %s, how are you today' % message.author.name)
+   #+END_SRC 
+   
+   That's it. Eight lines of python. The code in =bot.py= handles the importing and
+   calling of all the methods so the modules themselves are very simple to implement.
+
+   It's worth noting that both =setup= and =cleanup= are not required. They are only
+   called if implemented, whereas =handle= *must* be implemented.
