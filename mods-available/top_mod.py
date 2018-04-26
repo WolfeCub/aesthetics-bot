@@ -4,15 +4,6 @@ from botutils import has_prefix, get_content_without_prefix
 
 from pprint import pprint
 
-__client = None
-
-def setup(config):
-    global __client
-    __client = MongoClient(config['mongo_connection'])
-
-def cleanup():
-    __client.close()
-
 async def __should_return(client, message, module, module_namespace='mods-enabled'):
     if sys.modules.get(f'{module_namespace}.{module}_mod') is not None:
         return False
@@ -36,13 +27,16 @@ def __get_results_iterator(res, field, x=10):
         i+=1
 
 async def __send_top_x_results(client, message, res, field):
-    await client.send_message(message.channel, '\n'.join(__get_results_iterator(res, field)))
+    m = '\n'.join(__get_results_iterator(res, field))
+    if m is None or m == '':
+        m = 'No results found'
+    await client.send_message(message.channel, m)
 
-async def __handle_top_karma(client, message, args):
+async def __handle_top_karma(client, message, database, args):
     if await __should_return(client, message, 'karma'):
         return
 
-    users = __client.aesthetics.users
+    users = database.users
     res = users.aggregate([
         { 
             '$sort': { 'karma': -1 } 
@@ -50,11 +44,11 @@ async def __handle_top_karma(client, message, args):
 
     await __send_top_x_results(client, message, res, lambda x: x['karma'])
 
-async def __handle_top_messages(client, message, args):
+async def __handle_top_messages(client, message, database, args):
     if await __should_return(client, message, 'stats'):
         return
 
-    users = __client.aesthetics.users
+    users = database.users
     res = users.aggregate([
         { 
             '$project': { 'messages_sent': { '$objectToArray': '$messages_sent' }, 'name': '$name' } 
@@ -72,8 +66,8 @@ async def __handle_top_messages(client, message, args):
     await __send_top_x_results(client, message, res, lambda x: x['total_messages_sent'])
 
 
-async def __handle_top_channel(client, message, args):
-    users = __client.aesthetics.users
+async def __handle_top_channel(client, message, database, args):
+    users = database.users
     res = users.aggregate([
         { 
             '$sort': { f'messages_sent.{message.channel.id}': -1 }
@@ -88,7 +82,7 @@ __HANDLE_COMMAND_MAP = {
     'channel': __handle_top_channel
 }
 
-async def __print_usage(client, message, args):
+async def __print_usage(client, message, database, args):
     await client.send_message(message.channel, f"Usage: `!top [{', '.join(__HANDLE_COMMAND_MAP.keys())}]`")
 
 async def handle(client, config, message):
@@ -99,6 +93,10 @@ async def handle(client, config, message):
     args = content.split()
 
     if args[0] == 'top':
-        function = __HANDLE_COMMAND_MAP.get(args[1], __print_usage)
-        await function(client, message, args)
+        mongo_client = MongoClient(config['mongo_connection'])
+        database = mongo_client[message.server.id]
 
+        function = __HANDLE_COMMAND_MAP.get(args[1], __print_usage)
+        await function(client, message, database, args)
+
+        mongo_client.close()
