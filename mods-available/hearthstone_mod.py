@@ -6,7 +6,14 @@ from contextlib import suppress
 from botutils import *
 from base64 import b64decode
 
-card_data = {}
+dbf_to_card_map = {}
+rarity_to_cost_map = {
+    'FREE': 0,
+    'COMMON': 40,
+    'RARE': 100,
+    'EPIC': 400,
+    'LEGENDARY': 1600
+    }
 hero_name_map = {
     'Anduin Wrynn': 'PRIEST',
     'Tyrande Whisperwind': 'PRIEST',
@@ -31,12 +38,12 @@ hero_name_map = {
     }
 
 def setup(config):
-    global card_data
+    global dbf_to_card_map
     print('Parsing card data ...')
     data = json.load(open('cards.json', 'r'))
     for card in data:
         with suppress(KeyError):
-            card_data[card['dbfId']] = card
+            dbf_to_card_map[card['dbfId']] = card
 
 def __read_varint(stream):
     shift = 0
@@ -62,7 +69,7 @@ def __get_format_string(format_id):
         return 'Other'
 
 def __sort_by_mana(cards):
-    sort = sorted(cards, key=lambda c: card_data[c[0]]['cost'])
+    sort = sorted(cards, key=lambda c: dbf_to_card_map[c[0]]['cost'])
     formatted = [f'{card[1]}x {__get_card_name(card[0])}' for card in sort]
     return formatted
 
@@ -70,20 +77,23 @@ def __add_fields(embed, class_cards, neutral_cards):
     embed.add_field(name='Class Cards', value='\n'.join(__sort_by_mana(class_cards)))
     embed.add_field(name='Neutral Cards', value='\n'.join(__sort_by_mana(neutral_cards)))
 
-def __create_embed(hero, form, class_cards, neutral_cards):
+def __create_embed(deckstring, hero, form, class_cards, neutral_cards):
     embed = discord.Embed(
         title = f'{hero} - {__get_format_string(form)}',
         type  = 'rich',
+        url   = f'https://deck.codes/{deckstring}'
         )
+    embed.set_footer(text=sum(rarity_to_cost_map[dbf_to_card_map[d[0]]['rarity']] for d in class_cards + neutral_cards),\
+                     icon_url='http://tb.himg.baidu.com/sys/portrait/item/b2df777a3030303531327600')
     __add_fields(embed, class_cards, neutral_cards)
 
     return embed
 
 def __is_class_card(dbfId, hero):
-    return card_data[dbfId]['cardClass'] == hero_name_map[hero]
+    return dbf_to_card_map[dbfId]['cardClass'] == hero_name_map[hero]
 
 def __get_card_name(dbfId):
-    return card_data[dbfId]['name']
+    return dbf_to_card_map[dbfId]['name']
 
 async def __handle_deck_decode(client, message, args):
     stream = io.BytesIO(b64decode(args[1]))
@@ -116,7 +126,7 @@ async def __handle_deck_decode(client, message, args):
         dictionary.append((val, num))
 
     await client.send_message(message.channel,
-                              embed=__create_embed(hero, deck_format, class_cards, neutral_cards))
+            embed=__create_embed(args[1], hero, deck_format, class_cards, neutral_cards))
 
 def __handle_card_search(client, message, args):
     pass
