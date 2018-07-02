@@ -94,23 +94,23 @@ async def on_message(message):
 
 @client.event
 async def on_message_delete(message):
-    await call_method_on_modules_if_exists_async('handle_message_delete', [client, message])
+    await call_method_on_modules_if_exists_async('handle_message_delete', [client, config, message])
 
 @client.event
 async def on_message_edit(before, after):
-    await call_method_on_modules_if_exists_async('handle_message_edit', [client, before, after])
+    await call_method_on_modules_if_exists_async('handle_message_edit', [client, config, before, after])
 
 @client.event
 async def on_reaction_add(reaction, user):
-    await call_method_on_modules_if_exists_async('handle_reaction_add', [client, reaction, user])
+    await call_method_on_modules_if_exists_async('handle_reaction_add', [client, config, reaction, user])
 
 @client.event
 async def on_reaction_remove(reaction, user):
-    await call_method_on_modules_if_exists_async('handle_reaction_remove', [client, reaction, user])
+    await call_method_on_modules_if_exists_async('handle_reaction_remove', [client, config, reaction, user])
 
 @client.event
 async def on_reaction_clear(message, reactions):
-    await call_method_on_modules_if_exists_async('handle_reaction_clear', [client, message, reactions])
+    await call_method_on_modules_if_exists_async('handle_reaction_clear', [client, config, message, reactions])
 
 if __name__ == '__main__':
     setup()

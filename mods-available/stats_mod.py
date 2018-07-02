@@ -1,16 +1,10 @@
 from pymongo import MongoClient
 
-__client = None
-
-def setup(config):
-    global __client
-    __client = MongoClient(config['mongo_connection'])
-
-def cleanup():
-    __client.close()
-
 async def handle(client, config, message):
-    users = __client.aesthetics.users
+    mongo_client = MongoClient(config['mongo_connection'])
+    database = mongo_client[message.server.id]
+
+    users = database.users
     users.update_one({'_id': message.author.id}, 
                      {
                          '$set': {'nickname': message.author.display_name},
@@ -26,7 +20,7 @@ async def handle(client, config, message):
                          }
                      })
 
-    channels = __client.aesthetics.channels
+    channels = database.channels
     channels.update_one({'_id': message.channel.id},
                         {
                             '$set': {'name': message.channel.name},
@@ -34,7 +28,7 @@ async def handle(client, config, message):
                         },
                         upsert=True)
 
-    servers = __client.aesthetics.servers
+    servers = database.servers
     servers.update_one({'_id': message.server.id},
                        {
                            '$set': {'name': message.server.name},
@@ -42,8 +36,13 @@ async def handle(client, config, message):
                        },
                        upsert=True)
 
-async def handle_message_delete(client, message):
-    servers = __client.aesthetics.servers
+    mongo_client.close()
+
+async def handle_message_delete(client, config, message):
+    mongo_client = MongoClient(config['mongo_connection'])
+    database = mongo_client[message.server.id]
+
+    servers = database.servers
     servers.update_one({'_id': message.server.id},
                        {
                            '$set': {'name': message.server.name},
@@ -51,8 +50,13 @@ async def handle_message_delete(client, message):
                        },
                        upsert=True)
 
-async def handle_message_edit(client, before, after):
-    servers = __client.aesthetics.servers
+    mongo_client.close()
+
+async def handle_message_edit(client, config, before, after):
+    mongo_client = MongoClient(config['mongo_connection'])
+    database = mongo_client[after.server.id]
+
+    servers = database.servers
     servers.update_one({'_id': after.server.id},
                        {
                            '$set': {'name': after.server.name},
@@ -60,8 +64,13 @@ async def handle_message_edit(client, before, after):
                        },
                        upsert=True)
 
-async def handle_reaction_add(client, reaction, user):
-    servers = __client.aesthetics.servers
+    mongo_client.close()
+
+async def handle_reaction_add(client, config, reaction, user):
+    mongo_client = MongoClient(config['mongo_connection'])
+    database = mongo_client[reaction.message.server.id]
+
+    servers = database.servers
     servers.update_one({'_id': reaction.message.server.id},
                        {
                            '$set': {'name': reaction.message.server.name},
@@ -69,8 +78,13 @@ async def handle_reaction_add(client, reaction, user):
                        },
                        upsert=True)
 
-async def handle_reaction_remove(client, reaction, user):
-    servers = __client.aesthetics.servers
+    mongo_client.close()
+
+async def handle_reaction_remove(client, config, reaction, user):
+    mongo_client = MongoClient(config['mongo_connection'])
+    database = mongo_client[reaction.message.server.id]
+
+    servers = database.servers
     servers.update_one({'_id': reaction.message.server.id},
                        {
                            '$set': {'name': reaction.message.server.name},
@@ -78,11 +92,18 @@ async def handle_reaction_remove(client, reaction, user):
                        },
                        upsert=True)
 
-async def handle_reaction_clear(client, message, reactions):
-    servers = __client.aesthetics.servers
+    mongo_client.close()
+
+async def handle_reaction_clear(client, config, message, reactions):
+    mongo_client = MongoClient(config['mongo_connection'])
+    database = mongo_client[message.server.id]
+
+    servers = database.servers
     servers.update_one({'_id': message.server.id},
                        {
                            '$set': {'name': message.server.name},
                            '$inc': {'reactions_deleted': -len(reactions)}
                        },
                        upsert=True)
+
+    mongo_client.close()
