@@ -50,7 +50,7 @@ def __create_shuttle_embed(route):
     Creates a shuttle embed
     '''
     embed = Embed(
-        title       = 'Shuttle Times for %s %s :oncoming_bus:' % (dt.now(), route['name']),
+        title       = 'Shuttle Times for %s - %s :oncoming_bus:' % (dt.now().strftime('%B %d, %Y'), route['name']),
         type        = 'rich',
         description = '`**` indicates rush hour.\n The regular one-way ticket fare is $6.00.',
         color       = 16777215,
@@ -59,13 +59,27 @@ def __create_shuttle_embed(route):
 
     for stop in route['stops']:
         timing = ''
-
-        for stop_time in stop['time']:
-            timing += '%s %s\n' % (stop_time, '**' if stop_time['rush_hour'] else '') #should probably work on formatting time
+        for stop_time in stop['times']:
+            timing += '%s %s\n' % (__get_time_string_from_seconds(stop_time['time']), '\*\*' if stop_time['rush_hour'] else '') #should probably work on formatting time
 
         embed.add_field(name=':busstop: %s' % stop['location'], value=timing, inline=True)
 
+    embed.set_footer(text='Brought to you by the Cobalt API')
+
     return embed
+
+def __get_time_string_from_seconds(seconds):
+    '''
+    Returns string of time given in seconds. 
+    '''
+    m, s = divmod(seconds, 60)
+    h, m = divmod(m, 60)
+
+    if h == 0:
+        h = 12
+
+    return '%d:%02d PM' %(h % 12, m) if h > 12 else '%d:%02d AM' % (h, m)
+
 
 def __clean_course_dup(course_list):
     course_set = {course_list[0]['code'][0:8]: course_list[0]}
@@ -84,7 +98,8 @@ async def __request_course(client, message, config):
     '''
 
     course_name = message.content
-    params = {'q': 'code:"%s" AND term:"2017"' % course_name.upper().strip()}
+    year = str(dt.now().year)
+    params = { 'q': 'code:"%s" AND term:"%s"' % (course_name.upper().strip(), year) }
 
     try:
         async with aiohttp.ClientSession() as session:
@@ -113,12 +128,14 @@ async def __request_shuttle_times(client, message, config):
         async with aiohttp.ClientSession() as session:
             async with session.get('https://cobalt.qas.im/api/1.0/transportation/shuttles/%s' % now, headers=__HEADERS) as r:
                 if r.status == 200:
-                    shuttle_times = await r.json()
-                    if shuttle_times == []:
-                        await client.send_message(message.channel, 'No shuttles running today. :(')
+                    shuttle_query = await r.json()
+                    if not shuttle_query['routes']:
+                        await client.send_message(message.channel, 'There are no shuttles running today. :(')
                     else:
-                        return shuttle_times
-    except:
+                        return shuttle_query
+    except Exception as err:
+        print("Error in cobalt module!")
+        print(err)
         await client.send_message(message.channel, 'Error contacting server')
 
 async def handle(client, config, message):
@@ -127,16 +144,16 @@ async def handle(client, config, message):
 
     __set_headers(config)
 
-    # Do the cobalt shuttle things
-    # if (__is_cobalt_regex(message, __SHUTTLE_REGEX)):
-    #     shuttle_times = await __request_shuttle_times(client, message, config)
+    # Shuttle
+    if (__is_cobalt_regex(message, __SHUTTLE_REGEX)):
+        shuttle_info = await __request_shuttle_times(client, message, config)
 
-    #     if shuttle_times:
-    #         for shuttle in shuttle_times:
-    #             await client.send_message(message.channel,
-    #                                      embed= __create_shuttle_embed(shuttle))
+        if shuttle_info:
+            for route in shuttle_info['routes']:
+                await client.send_message(message.channel,
+                                          embed= __create_shuttle_embed(route))
 
-    # Do the cobalt course things
+    # Courses
     if (__is_cobalt_regex(message, __COURSE_REGEX)):
         course_info = await __request_course(client, message, config)
 
@@ -147,7 +164,5 @@ async def handle(client, config, message):
                 await client.send_message(message.channel,
                                           embed= __create_course_embed(course))
 
-    # Do the cobalt exam things
-    # if (__is_cobalt_regex(message, __EXAM_REGEX)):
-    #     pass
+    # Exams - TBW
 
