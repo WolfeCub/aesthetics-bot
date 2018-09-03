@@ -1,5 +1,13 @@
 def is_channel_valid(config, config_setting, message):
-    return config.get(config_setting) is not None and message.channel.name in config[config_setting]
+    setting = config.get(config_setting)
+    if setting == None:
+        return True
+    elif message.channel.name in config[config_setting]:
+        return True
+    elif '*' in setting:
+        return True
+    else:
+        return False
 
 def has_prefix(config, message):
     return message.content.startswith(config['prefix'])

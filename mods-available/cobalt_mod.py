@@ -50,7 +50,7 @@ def __create_shuttle_embed(route):
     Creates a shuttle embed
     '''
     embed = Embed(
-        title       = 'Shuttle Times for %s - %s :oncoming_bus:' % (dt.now().strftime('%B %d, %Y'), route['name']),
+        title       = f'Shuttle Times for {dt.now().strftime("%B %d, %Y")} - {route["name"]} :oncoming_bus:',
         type        = 'rich',
         description = '`**` indicates rush hour.\n The regular one-way ticket fare is $6.00.',
         color       = 16777215,
@@ -60,7 +60,7 @@ def __create_shuttle_embed(route):
     for stop in route['stops']:
         timing = ''
         for stop_time in stop['times']:
-            timing += '%s %s\n' % (__get_time_string_from_seconds(stop_time['time']), '\*\*' if stop_time['rush_hour'] else '') #should probably work on formatting time
+            timing += f'{__get_time_string_from_seconds(stop_time["time"])} {"**" if stop_time["rush_hour"] else ""}\n'
 
         embed.add_field(name=':busstop: %s' % stop['location'], value=timing, inline=True)
 

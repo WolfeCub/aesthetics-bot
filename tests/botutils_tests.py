@@ -15,7 +15,7 @@ class TestBotutils(unittest.TestCase):
         type(self.message.channel).name = self.prop
 
         ret_val = botutils.is_channel_valid({}, 'anything', self.message)
-        self.assertFalse(ret_val)
+        self.assertTrue(ret_val)
         self.prop.assert_not_called()
 
     def test_is_channel_valid_valid_config(self):
