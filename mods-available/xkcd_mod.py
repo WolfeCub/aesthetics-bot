@@ -4,15 +4,16 @@ from botutils import *
 from random import randint
 
 __CURRENT_NUM = None
+__BASE_URL = 'https://xkcd.com'
 
 def fetch_comic_from_api(number=None):
-    url = f'https://xkcd.com/{number if number else ""}/info.0.json'
+    url = f'{__BASE_URL}/{number if number else ""}/info.0.json'
     r = requests.get(url)
     if r.ok:
         return r.json()
 
 def generate_embed(comic):
-    e = discord.Embed(title=comic['safe_title'])
+    e = discord.Embed(title=comic['safe_title'], url=f'{__BASE_URL}/{comic["num"]}/')
     e.set_image(url=comic['img'])
     return e
 
