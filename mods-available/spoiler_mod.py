@@ -1,13 +1,14 @@
 from PIL import Image, ImageDraw, ImageFont
 import textwrap 
 import os
+import discord
 from botutils import has_prefix, get_content_without_prefix
 
 def __newImage(width, height, color):
     return Image.new("L", (width, height), color)
 
 async def __handle_spoiler(client, message, text):
-    await client.delete_message(message)
+    await message.delete()
 
     margin = (5, 5)
     fontSize = 16
@@ -42,7 +43,7 @@ async def __handle_spoiler(client, message, text):
     path = f'/tmp/{message.id}.gif'
 
     spoilIMG[0].save(path, format='GIF', save_all=True, append_images=[spoilIMG[1]], duration=[0, 0xFFFF], loop=0)
-    await client.send_file(message.channel, path, content=f'{message.author.nick if message.author.nick is not None else message.author.name} says: ')
+    await message.channel.send(file=discord.File(path), content=f'{message.author.nick if message.author.nick is not None else message.author.name} says: ')
 
     os.remove(path)
 

@@ -42,7 +42,7 @@ async def handle(client, config, message):
     if args[0] != 'fortnite':
         return
     if len(args) < 2:
-        await client.send_message(message.channel, 'Usage: !fortnite [epic games name] <platform:optional pc, xbl or psn>')
+        await message.channel.send('Usage: !fortnite [epic games name] <platform:optional pc, xbl or psn>')
         return
 
     platform = 'pc'
@@ -59,13 +59,13 @@ async def handle(client, config, message):
     request = requests.get(url, headers={'TRN-Api-Key': config['fortnite_tracker_apikey']})
 
     if not request.ok:
-        await client.send_message(message.channel, "Error: A request error returned.")
+        await message.channel.send("Error: A request error returned.")
         return
 
     r_result = json.loads(request.content)
 
     error = r_result.get('error')
     if error is not None:
-        await client.send_message(message.channel, f"Error: {error}")
+        await message.channel.send(f"Error: {error}")
     else:
-        await client.send_message(message.channel, embed=__create_embed_from_result(r_result, platform))
+        await message.channel.send(embed=__create_embed_from_result(r_result, platform))

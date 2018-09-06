@@ -51,7 +51,7 @@ async def handle(client, config, message):
     comic = get_comic_per_args(command_args)
 
     if comic is not None:
-        await client.send_message(message.channel, embed=generate_embed(comic))
+        await message.channel.send(embed=generate_embed(comic))
     else:
-        await client.send_message(message.channel, 'Invalid number or command specified.')
+        await message.channel.send('Invalid number or command specified.')
 

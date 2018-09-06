@@ -1,3 +1,6 @@
 [submodule "pymoe-src"]
-	path = pymoe-src
+	path = modules/pymoe-src
 	url = https://github.com/ccubed/PyMoe.git
+[submodule "modules/discord.py"]
+	path = modules/discord.py
+	url = https://github.com/Rapptz/discord.py.git

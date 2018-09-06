@@ -125,8 +125,7 @@ async def __handle_deck_decode(client, message, args):
         dictionary = class_cards if __is_class_card(val, hero) else neutral_cards
         dictionary.append((val, num))
 
-    await client.send_message(message.channel,
-            embed=__create_embed(args[1], hero, deck_format, class_cards, neutral_cards))
+    await message.channel.send(embed=__create_embed(args[1], hero, deck_format, class_cards, neutral_cards))
 
 def __handle_card_search(client, message, args):
     pass

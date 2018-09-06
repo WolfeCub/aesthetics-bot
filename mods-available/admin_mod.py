@@ -4,17 +4,17 @@ __VALID_ROLES = ['Executive', 'They can never remove the exec role']
 
 async def __handle_clear(client, message, args):
     if len(args) < 2:
-        await client.send_message(message.channel, 'Incorrect syntax')
+        await message.channel.send('Incorrect syntax')
         return
     
     if args[1] == 'all' or args[1] == '*':
-        await client.purge_from(message.channel)
+        await message.channel.purge()
         return
 
     try:
-        await client.purge_from(message.channel, limit=int(args[1]))
+        await message.channel.purge(limit=int(args[1]))
     except ValueError:
-        await client.send_message(message.channel, 'Invalid amount of messages')
+        await message.channel.send('Invalid amount of messages')
         return
 
 

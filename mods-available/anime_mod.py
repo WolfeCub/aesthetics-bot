@@ -42,13 +42,13 @@ def __get_range(results):
 
 async def __delete_messages(client, messages):
     for mes in messages:
-        await client.delete_message(mes)
+        await mes.delete()
 
 async def __send_full_embed(client, message, results, reply):
     try:
-        await client.send_message(message.channel, embed=__create_full_embed_from_result(results[int(reply.content)-1]))
+        await message.channel.send(embed=__create_full_embed_from_result(results[int(reply.content)-1]))
     except ValueError:
-        await client.send_message(message.channel, 'Invalid selection. You must select a number.')
+        await message.channel.send('Invalid selection. You must select a number.')
 
 async def __anime_search(client, message, results):
     if results is None:
@@ -56,9 +56,9 @@ async def __anime_search(client, message, results):
     messages_to_delete = []
 
     for i in range(__get_range(results)):
-        messages_to_delete.append(await client.send_message(message.channel, embed=__create_small_embed_from_result(results[i], i)))
+        messages_to_delete.append(await message.channel.send(embed=__create_small_embed_from_result(results[i], i)))
 
-    reply = await client.wait_for_message(timeout=60, author=message.author, check=lambda m: m.channel.name == message.channel.name)
+    reply = await client.wait_for('message', timeout=60, check=lambda m: m.author.id == message.author.id and m.channel.name == message.channel.name)
     messages_to_delete.append(reply)
 
     await __send_full_embed(client, message, results, reply)
@@ -92,11 +92,11 @@ async def handle(client, config, message):
 
     match = search_match if search_match else get_match
     if match is not None:
-        client.send_typing(message.channel)
+        message.channel.typing()
         results = __KITSU.anime.search(match)
         if results is not None and get_match is not None:
-            await client.send_message(message.channel, embed=__create_full_embed_from_result(results[0]))
+            await message.channel.send(embed=__create_full_embed_from_result(results[0]))
         elif search_match is not None:
             await __anime_search(client, message, results)
         else:
-            await client.send_message(message.channel, 'No results found.')
+            await message.channel.send('No results found.')

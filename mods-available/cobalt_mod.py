@@ -107,14 +107,14 @@ async def __request_course(client, message, config):
                 if r.status == 200:
                     course_query = await r.json()
                     if course_query == []:
-                        await client.send_message(message.channel, ':slight_frown: **||** Nothing came up.')
+                        await message.channel.send(':slight_frown: **||** Nothing came up.')
                     else:
                         return course_query
 
     except Exception as err:
         print("Error in cobalt module!")
         print(err)
-        await client.send_message(message.channel, 'There was an error with grabbing the information, oh no! :dizzy_face:')
+        await message.channel.send('There was an error with grabbing the information, oh no! :dizzy_face:')
 
     return None
 
@@ -130,13 +130,13 @@ async def __request_shuttle_times(client, message, config):
                 if r.status == 200:
                     shuttle_query = await r.json()
                     if not shuttle_query['routes']:
-                        await client.send_message(message.channel, 'There are no shuttles running today. :(')
+                        await message.channel.send('There are no shuttles running today. :(')
                     else:
                         return shuttle_query
     except Exception as err:
         print("Error in cobalt module!")
         print(err)
-        await client.send_message(message.channel, 'Error contacting server')
+        await message.channel.send('Error contacting server')
 
 async def handle(client, config, message):
     if not is_channel_valid(config, 'school_channels', message):
@@ -150,8 +150,7 @@ async def handle(client, config, message):
 
         if shuttle_info:
             for route in shuttle_info['routes']:
-                await client.send_message(message.channel,
-                                          embed= __create_shuttle_embed(route))
+                await message.channel.send(embed= __create_shuttle_embed(route))
 
     # Courses
     if (__is_cobalt_regex(message, __COURSE_REGEX)):
@@ -159,10 +158,9 @@ async def handle(client, config, message):
 
         if course_info:
             course_info = __clean_course_dup(course_info)
-            await client.send_message(message.channel, ':package: **||** Here are the result(s).')
+            await message.channel.send(':package: **||** Here are the result(s).')
             for course in course_info:
-                await client.send_message(message.channel,
-                                          embed= __create_course_embed(course))
+                await message.channel.send(embed= __create_course_embed(course))
 
     # Exams - TBW
 

@@ -51,16 +51,16 @@ async def handle(client, config, message):
     if command_args[0] != 'val':
         return
 
-    client.send_typing(message.channel)
+    message.channel.typing()
     command_args[1] = command_args[1].upper()
     if command_args[1] in currency_mapping:
         coin_market = Market()
         try:
             data = coin_market.ticker(currency_mapping[command_args[1]], limit=1, convert = 'CAD')[0]
-            await client.send_message(message.channel, embed=__create_message(data))
+            await message.channel.send(embed=__create_message(data))
         except Exception as err:
-            await client.send_message(message.channel, 'There was an error fetching the value of %s!' % command_args[1])
+            await message.channel.send('There was an error fetching the value of %s!' % command_args[1])
             print('Error fetching token %s' % command_args[1])
             print('%s\n' % err)
     else:
-        await client.send_message(message.channel, 'Token %s not found!' % command_args[1])
+        await message.channel.send('Token %s not found!' % command_args[1])

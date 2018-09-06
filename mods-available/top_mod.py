@@ -8,7 +8,7 @@ async def __should_return(client, message, module, module_namespace='mods-enable
     if sys.modules.get(f'{module_namespace}.{module}_mod') is not None:
         return False
     else:
-        await client.send_message(message.channel, \
+        await message.channel.send(\
             f"Module '{module}' has not been enabled. Please enabled it to use this command.'")
         return True
 
@@ -30,7 +30,7 @@ async def __send_top_x_results(client, message, res, field):
     m = '\n'.join(__get_results_iterator(res, field))
     if m is None or m == '':
         m = 'No results found'
-    await client.send_message(message.channel, m)
+    await message.channel.send(m)
 
 async def __handle_top_karma(client, message, database, args):
     if await __should_return(client, message, 'karma'):
@@ -83,7 +83,7 @@ __HANDLE_COMMAND_MAP = {
 }
 
 async def __print_usage(client, message, database, args):
-    await client.send_message(message.channel, f"Usage: `!top [{', '.join(__HANDLE_COMMAND_MAP.keys())}]`")
+    await message.channel.send(f"Usage: `!top [{', '.join(__HANDLE_COMMAND_MAP.keys())}]`")
 
 async def handle(client, config, message):
     if not has_prefix(config, message):
@@ -94,7 +94,7 @@ async def handle(client, config, message):
 
     if args[0] == 'top':
         mongo_client = MongoClient(config['mongo_connection'])
-        database = mongo_client[message.server.id]
+        database = mongo_client[str(message.guild.id)]
 
         function = __HANDLE_COMMAND_MAP.get(args[1], __print_usage)
         await function(client, message, database, args)

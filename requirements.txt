@@ -1,5 +1,6 @@
-discord.py[voice]
-coinmarketcap
+yarl<1.2
+
+coinmarketcap==4.2.1
 Pillow
 pymongo
 

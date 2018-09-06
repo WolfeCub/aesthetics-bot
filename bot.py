@@ -76,7 +76,7 @@ def check_config_params(json, items):
 
 @client.event
 async def on_ready():
-    await client.change_presence(game=discord.Game(name='new year, new bot'))
+    await client.change_presence(activity=discord.Game(name='new year, new bot'))
     print('-------------')
     print('Logged in as')
     print(client.user.name)
