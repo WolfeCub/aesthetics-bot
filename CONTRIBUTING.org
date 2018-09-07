@@ -64,7 +64,7 @@
          if __REGEX.match(message.content) is None:
              return
 
-         await client.send_message(message.channel, 'Hello %s, how are you today' % message.author.name)
+         await message.channel.send('Hello %s, how are you today' % message.author.name)
    #+END_SRC 
    
    That's it. Eight lines of python. The code in =bot.py= handles the importing and
