@@ -1,3 +1,6 @@
+from datetime import datetime
+from pytz import timezone
+
 def is_channel_valid(config, config_setting, message):
     setting = config.get(config_setting)
     if setting == None:
@@ -14,6 +17,10 @@ def has_prefix(config, message):
 
 def get_content_without_prefix(config, message):
     return message.content[len(config['prefix']):]
+
+def timestamp():
+    return datetime.now(timezone('Canada/Eastern'))
+    #return datetime.now(timezone('Canada/Eastern')).timetuple()
 
 
 __all__ = ['is_channel_valid', 'has_prefix', 'get_content_without_prefix']
