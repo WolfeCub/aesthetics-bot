@@ -2,21 +2,16 @@
 import os
 import glob
 import json
-import asyncio
 import discord
-from discord.ext import commands
+import asyncio
 import signal
 import inspect
 import logging
 from importlib import import_module
-from rosi import Rosi
 
-from os import listdir
-from os.path import isfile, join
-
-client = Rosi()
+client = discord.Client()
+config = {}
 modules = []
-cogs_dir = "cogs"
 
 def call_method_on_modules_if_exists(method_name, list_of_args):
     for module in modules:
@@ -39,7 +34,6 @@ def setup():
         exit(1)
     with open('config.json', 'r') as f:
         config = json.loads(f.read())
-        client.set_config(config)
 
     check_config_params(config, ['token',
                                  'kitsu_id',
@@ -56,15 +50,7 @@ def setup():
     # Import modules
     for item in glob.glob('./mods-enabled/*_mod.py'):
         name = os.path.basename(item)[:-3]
-        modules.append(import_module(f'mods-enabled.{name}'))
-
-    # Import Cogs
-    for extension in [f.replace('.py', '') for f in listdir(cogs_dir) if isfile(join(cogs_dir, f))]:
-        try:
-            client.load_extension(cogs_dir + "." + extension)
-            print(f'Loaded {extension}')
-        except Exception as e:
-            print(f'Failed to load {extension}. \n {e}')
+        modules.append(import_module('mods-enabled.%s' % name))
 
     # Run setup if exists
     call_method_on_modules_if_exists('setup', [config])
@@ -88,7 +74,6 @@ def check_config_params(json, items):
     if should_exit:
         exit(1)
 
-
 @client.event
 async def on_ready():
     await client.change_presence(activity=discord.Game(name='new year, new bot'))
@@ -100,17 +85,12 @@ async def on_ready():
 
 @client.event
 async def on_message(message):
-    if message.author.bot:
+    if message.author == client.user:
         return
 
     # We assume that handle exists otherwise it will die
     for module in modules:
         await module.handle(client, config, message)
-
-    # Cogs/Classes
-    ctx = await client.get_context(message)
-    if ctx.valid:
-        await client.process_commands(message)
 
 @client.event
 async def on_message_delete(message):
@@ -134,4 +114,4 @@ async def on_reaction_clear(message, reactions):
 
 if __name__ == '__main__':
     setup()
-    client.run(client.get_config('token'))
+    client.run(config['token'])

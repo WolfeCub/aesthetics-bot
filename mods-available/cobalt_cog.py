@@ -29,7 +29,7 @@ class CobaltCog():
         '''
         Returns string of time given in seconds. 
         '''
-        m, s = divmod(seconds, 60)
+        m = divmod(seconds, 60)[0]
         h, m = divmod(m, 60)
 
         if h == 0:
@@ -50,7 +50,7 @@ class CobaltCog():
 
     async def __request_course(self, ctx, course_name: str):
         ''' Sends a request to the Cobalt API to retrieve information'''
-        year = '2018'
+        year = str(timestamp().year)
         params = { 'q': 'code:"%s" AND term:"%s"' % (course_name.upper().strip(), year) }
 
         try:
@@ -111,7 +111,7 @@ class CobaltCog():
 
         try:
             async with aiohttp.ClientSession() as session:
-                async with session.get('https://cobalt.qas.im/api/1.0/transportation/shuttles/%s' % now, headers=self.__HEADERS) as r:
+                async with session.get(f'https://cobalt.qas.im/api/1.0/transportation/shuttles/{now}', headers=self.__HEADERS) as r:
                     if r.status == 200:
                         shuttle_query = await r.json()
                         if not shuttle_query['routes']:

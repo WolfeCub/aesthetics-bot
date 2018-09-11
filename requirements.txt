@@ -1,9 +1,7 @@
 yarl<1.2
-
 coinmarketcap==4.2.1
 Pillow
 pymongo
-
 ujson
 requests
 bs4
@@ -12,4 +10,5 @@ urllib3
 chardet
 certifi
 beautifulsoup4
+websockets==6.0
 
