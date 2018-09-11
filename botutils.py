@@ -19,7 +19,7 @@ def get_content_without_prefix(config, message):
     return message.content[len(config['prefix']):]
 
 def timestamp():
-    return datetime.now(timezone('Canada/Eastern')
+    return datetime.now(timezone('Canada/Eastern'))
 
 
 __all__ = ['is_channel_valid', 'has_prefix', 'get_content_without_prefix']
